@@ -43,7 +43,7 @@
     public string PropositionResult { get; set; } = string.Empty;
     public bool HasProposition { get; set; }
     public List<(Dictionary<string, bool>, bool)> Results { get; set; } = new();
-    public HashSet<string> Variables { get; set; } = new();
+    public List<string> Variables { get; set; } = new();
 
     private IEnumerable<string> Validate(string ch) {
         string result = _errorMessage = string.Empty;
@@ -73,6 +73,7 @@
 
             // Update table
             Variables = prop.GetVariables();
+            Variables.Reverse();
             Results = prop.GetTruthTable();
             
             PropositionResult = prop.ToString() ?? "Results";
