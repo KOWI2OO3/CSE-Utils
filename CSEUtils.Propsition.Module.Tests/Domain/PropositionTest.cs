@@ -20,7 +20,7 @@ public class PropositionTest
         var proposition = new And();
         proposition.AddParameter(new PropositionalVariable("a"));
         proposition.AddParameter(notProposition);
-        Assert.That(proposition.ToString(), Is.EqualTo("a ∧ ¬b"));
+        Assert.That(proposition.ToString(), Is.EqualTo("a ∧ (¬b)"));
     }
 
     [Test]
@@ -31,7 +31,7 @@ public class PropositionTest
         var proposition = new And();
         proposition.AddParameter(notProposition);
         proposition.AddParameter(new PropositionalVariable("b"));
-        Assert.That(proposition.ToString(), Is.EqualTo("¬a ∧ b"));
+        Assert.That(proposition.ToString(), Is.EqualTo("(¬a) ∧ b"));
     }
 
 

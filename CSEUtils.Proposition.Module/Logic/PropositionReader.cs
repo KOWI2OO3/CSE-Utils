@@ -10,17 +10,28 @@ public class PropositionReader
 
     public static IProposition? Read(string proposition) {
         int pointer = 0;
+        proposition = EvaluatePriority(proposition, pointer);
         return Read(proposition, ref pointer);
     }
 
     private static IProposition? Read(string proposition, ref int pointer)
     {
-        proposition = proposition.Replace(" ", "");
         IProposition? cache = null;
 
         while(pointer < proposition.Length) {
             char currentChar = proposition[pointer];
-            if(char.IsLetter(currentChar))
+            if(currentChar == '(') 
+            {
+                pointer++;
+                cache = Read(proposition, ref pointer);
+            }
+            else if(currentChar == ')') 
+            {
+                pointer++;
+                break;
+            }
+
+            else if(char.IsLetter(currentChar))
                 cache = ReadVariable(proposition, ref pointer);
             else if(currentChar.IsOperator())
                 cache = ReadProposition(proposition, ref pointer, ref cache);
