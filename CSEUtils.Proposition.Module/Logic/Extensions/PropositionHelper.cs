@@ -1,3 +1,4 @@
+using System.Data;
 using System.Reflection;
 using CSEUtils.Proposition.Module.Domain;
 using CSEUtils.Proposition.Module.Domain.Propositions;
@@ -28,5 +29,11 @@ public static class PropositionHelper
 
     public static char[] Operators(this IProposition proposition) =>
         proposition.GetType().GetCustomAttribute<PropositionAttribute>()?.Aliases ?? throw new InvalidOperationException("Proposition does not have any operators");
+
+    public static List<(Dictionary<string, bool>, bool)> GetTruthTable(this IProposition proposition) {
+        return proposition.GetAllPossibilities()
+            .Select(option => (option, proposition.Solve(option)))
+            .ToList();
+    }
 
 }

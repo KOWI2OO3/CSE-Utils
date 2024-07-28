@@ -6,7 +6,7 @@ namespace CSEUtils.Proposition.Module.Logic;
 public class PropositionReader
 {
     public HashSet<char> Variables = [];
-
+ 
     public static IProposition? Read(string proposition) {
         int pointer = 0;
         proposition = EvaluatePriority(proposition, pointer);
@@ -34,6 +34,8 @@ public class PropositionReader
                 cache = ReadVariable(proposition, ref pointer);
             else if(currentChar.IsOperator())
                 cache = ReadProposition(proposition, ref pointer, ref cache);
+            else 
+                throw new FormatException($"Unknown character {currentChar}");
         }
 
         return cache;
@@ -45,11 +47,14 @@ public class PropositionReader
         if(result is BinaryOperator binaryOperator) 
         {
             if(cache == null)
-                throw new FormatException("Binary operators should have a variable type on the left side of the operator");
+                throw new FormatException("Binary operators should have a variable or proposition on the left and right side of the operator");
             binaryOperator.AddParameter(cache);
         }
         cache = null;
         if(result is IParamatized paramatized) {
+            if(pointer > proposition.Length) 
+                throw new FormatException("Binary operators should have a variable or proposition on the left and right side of the operator");
+            
             if(char.IsLetter(proposition[pointer])) 
                 paramatized.AddParameter(ReadVariable(proposition, ref pointer));
             else

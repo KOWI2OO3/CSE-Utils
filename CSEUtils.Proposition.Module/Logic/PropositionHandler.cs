@@ -5,15 +5,12 @@ namespace CSEUtils.Proposition.Module.Logic;
 
 public static class PropositionHandler
 {
-    private static Dictionary<char, Type> operators = [];
-
-    public static void Init() {
-        operators = typeof(PropositionHandler).Assembly.GetExportedTypes()
+    private static readonly Dictionary<char, Type> operators = 
+        typeof(PropositionHandler).Assembly.GetExportedTypes()
             .Select(type => (type, type.GetCustomAttribute<PropositionAttribute>()?.Aliases))
             .Where(tuple => tuple.Aliases != null)
             .SelectMany(tuple => tuple.Aliases!.Select(alias => (alias, tuple.type)))
             .ToDictionary(tuple => tuple.alias, tuple => tuple.type);
-    }
 
     /// <summary>
     /// Get a proposition from a character and add the operands to it

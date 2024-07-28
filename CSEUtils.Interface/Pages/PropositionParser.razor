@@ -1,0 +1,91 @@
+@using CSEUtils.Proposition.Module.Logic;
+@using CSEUtils.Proposition.Module.Logic.Extensions;
+@page "/proposition"
+
+<PageTitle>Propositions</PageTitle>
+
+<MudTextField @bind-Value="Proposition" Label="Proposition" Variant="Variant.Text" Clearable="true" Error="@Error" Validation="@(new Func<string, IEnumerable<string>>(Validate))" />
+
+@if(HasProposition) 
+{
+    <MudSimpleTable style="margin-top: 5px;">
+        <thead>
+            @foreach(var variable in Variables)
+            {
+                <th>@variable</th>
+            }
+            <th>@PropositionResult</th>
+        </thead>
+        <tbody>
+            @foreach(var row in Results) 
+            {
+                <tr>
+                    @foreach(var variable in Variables) 
+                    {
+                        <td>@GetVariableValue(row, variable)</td>
+                    }
+                    <td>@GetDisplay(row.Item2)</td>
+                </tr>
+            }
+        </tbody>
+    </MudSimpleTable>
+}
+
+@code {
+    public bool UseBinary { get; set; } = true;
+
+    private string _proposition { get; set; } = string.Empty;
+    private string _errorMessage { get; set; }= string.Empty;
+
+    public string Proposition { get => _proposition; set => OnChanged(value); }
+    public bool Error => !string.IsNullOrEmpty(_errorMessage);
+
+    public string PropositionResult { get; set; } = string.Empty;
+    public bool HasProposition { get; set; }
+    public List<(Dictionary<string, bool>, bool)> Results { get; set; } = new();
+    public HashSet<string> Variables { get; set; } = new();
+
+    private IEnumerable<string> Validate(string ch) {
+        string result = _errorMessage = string.Empty;
+        try {
+            var prop = PropositionReader.Read(ch);
+            if(prop == null || !prop.IsComplete) 
+                result = _errorMessage = "Invalid proposition";
+
+        }catch(Exception ex) {
+            result = _errorMessage = ex.Message;
+        }
+
+        yield return result;
+    }
+
+    private void OnChanged(string newValue) {
+        _proposition = newValue;
+
+        // Parse :D
+        try {
+            var prop = PropositionReader.Read(newValue);
+            if(prop == null || !prop.IsComplete) 
+            {
+                HasProposition = false;
+                return;
+            }
+
+            // Update table
+            Variables = prop.GetVariables();
+            Results = prop.GetTruthTable();
+            
+            PropositionResult = prop.ToString() ?? "Results";
+            HasProposition = true;
+        }catch 
+        {
+            HasProposition = false;
+        }
+    }
+
+    private string GetVariableValue((Dictionary<string, bool>, bool) Result, string variable) {
+        return Result.Item1.TryGetValue(variable, out var input) ? GetDisplay(input) : "x";
+    }
+
+    private string GetDisplay(bool value) => UseBinary ? (value ? "1" : "0") : (value ? "T" : "F");
+}
