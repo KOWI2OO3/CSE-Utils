@@ -1,4 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
 using CSEUtils.Proposition.Module.Domain;
 using CSEUtils.Proposition.Module.Domain.Propositions;
 
@@ -40,7 +39,7 @@ public class PropositionReader
         return cache;
     }
 
-    public static IProposition ReadProposition(string proposition, ref int pointer, ref IProposition? cache) 
+    private static IProposition ReadProposition(string proposition, ref int pointer, ref IProposition? cache) 
     {
         var result = PropositionHandler.GetProposition(proposition[pointer++], []) ?? throw new FormatException("");
         if(result is BinaryOperator binaryOperator) 
@@ -60,7 +59,7 @@ public class PropositionReader
         return result;
     }
 
-    public static PropositionalVariable ReadVariable(string proposition, ref int pointer)
+    private static PropositionalVariable ReadVariable(string proposition, ref int pointer)
     {
         var variable = "";
         while(pointer < proposition.Length && char.IsLetter(proposition[pointer])) {
