@@ -4,7 +4,19 @@
 
 <PageTitle>Propositions</PageTitle>
 
-<MudTextField @bind-Value="Proposition" Label="Proposition" Variant="Variant.Text" Clearable="true" Error="@Error" Validation="@(new Func<string, IEnumerable<string>>(Validate))" />
+<MudCard style="margin-top: 10px;">
+    <MudCardContent>
+        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+            @foreach(var entry in PropositionHandler.OperatorsInfo) {
+                <MudTooltip Text="@(entry.Item2.ToUpper())">
+                        <MudButton OnClick="() => AppendOperator((entry.Item1))">@(entry.Item1)</MudButton>
+                </MudTooltip>
+            }
+        </MudButtonGroup>
+
+        <MudTextField @bind-Value="Proposition" Label="Proposition" Variant="Variant.Text" Clearable="true" Error="@Error" Validation="@(new Func<string, IEnumerable<string>>(Validate))" />
+    </MudCardContent>
+</MudCard>
 
 @if(HasProposition) 
 {
@@ -89,4 +101,6 @@
     }
 
     private string GetDisplay(bool value) => UseBinary ? (value ? "1" : "0") : (value ? "T" : "F");
+
+    private void AppendOperator(char primaryOperator) => _proposition += primaryOperator; 
 }

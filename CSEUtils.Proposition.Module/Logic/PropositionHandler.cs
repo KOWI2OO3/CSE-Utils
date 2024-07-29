@@ -1,5 +1,6 @@
 using System.Reflection;
 using CSEUtils.Proposition.Module.Domain;
+using CSEUtils.Proposition.Module.Logic.Extensions;
 
 namespace CSEUtils.Proposition.Module.Logic;
 
@@ -40,5 +41,13 @@ public static class PropositionHandler
         if(!operators.TryGetValue(symbol, out var type)) return 0;
         return type.GetCustomAttribute<PropositionAttribute>()?.Priority ?? 1;
     }
+    
+    public static List<(char, string)> OperatorsInfo => operators
+        .Select(entry => entry.Value)
+        .Distinct()
+        .Select(
+            type => (PropositionHelper.PrimaryOperator(type), type.Name)
+        )
+        .ToList();
 
 }

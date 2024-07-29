@@ -24,8 +24,11 @@ public static class PropositionHelper
         return result;
     }
 
+    public static char PrimaryOperator(Type propositionType) =>
+        propositionType.GetCustomAttribute<PropositionAttribute>()?.Aliases.FirstOrDefault() ?? throw new InvalidOperationException("Proposition does not have a primary operator");
+
     public static char PrimaryOperator(this IProposition proposition) =>
-        proposition.GetType().GetCustomAttribute<PropositionAttribute>()?.Aliases.FirstOrDefault() ?? throw new InvalidOperationException("Proposition does not have a primary operator");
+        PrimaryOperator(proposition.GetType());
 
     public static char[] Operators(this IProposition proposition) =>
         proposition.GetType().GetCustomAttribute<PropositionAttribute>()?.Aliases ?? throw new InvalidOperationException("Proposition does not have any operators");
