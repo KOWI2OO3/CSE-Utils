@@ -1,8 +1,20 @@
 ﻿<MudNavMenu>
-    <MudNavLink Href="/CSE-Utils/" Match="NavLinkMatch.All">Dashboard</MudNavLink>
+    <MudNavLink Href="@GetPath("/")" Match="NavLinkMatch.All">Dashboard</MudNavLink>
     @* <MudNavLink Href="/servers" Match="NavLinkMatch.Prefix">Servers</MudNavLink> *@
     <MudNavGroup Title="Utilities" Expanded="true">
-        <MudNavLink Href="/CSE-Utils/proposition"  Match="NavLinkMatch.Prefix">Proposition</MudNavLink>
+        <MudNavLink Href="@GetPath("/proposition")"  Match="NavLinkMatch.Prefix">Proposition</MudNavLink>
     </MudNavGroup>
-    <MudNavLink Href="/CSE-Utils/about"  Match="NavLinkMatch.Prefix">About</MudNavLink>
+    <MudNavLink Href="@GetPath("/about")"  Match="NavLinkMatch.Prefix">About</MudNavLink>
 </MudNavMenu>
+
+@code {
+    private const string RepositoryName = "CSE-Utils"; 
+
+    private string GetPath(string path) {
+#if DEBUG
+        return path;
+#else
+        return $"/{RepositoryName}{path}";
+#endif
+    }
+}
