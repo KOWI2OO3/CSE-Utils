@@ -14,7 +14,7 @@
             }
         </MudButtonGroup>
 
-        <MudTextField @bind-Value="Proposition" Label="Proposition" Variant="Variant.Text" Clearable="true" Error="@Error" Validation="@(new Func<string, IEnumerable<string>>(Validate))" />
+        <MudTextField @ref="@PropositionTextField" @bind-Value="Proposition" Label="Proposition" Variant="Variant.Text" Clearable="true" Error="@Error" Validation="@(new Func<string, IEnumerable<string>>(Validate))" />
     </MudCardContent>
 </MudCard>
 
@@ -44,6 +44,8 @@
 }
 
 @code {
+    public MudTextField<string> PropositionTextField = new();
+
     public bool UseBinary { get; set; } = true;
 
     private string _proposition { get; set; } = string.Empty;
@@ -102,5 +104,8 @@
 
     private string GetDisplay(bool value) => UseBinary ? (value ? "1" : "0") : (value ? "T" : "F");
 
-    private void AppendOperator(char primaryOperator) => _proposition += primaryOperator; 
+    private void AppendOperator(char primaryOperator) {
+        _proposition += primaryOperator;
+        PropositionTextField.FocusAsync();
+    } 
 }
