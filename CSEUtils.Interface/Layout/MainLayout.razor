@@ -10,7 +10,7 @@
         <MudText Typo="Typo.h5" Class="ml-3">@(AppInfo.Name)</MudText>
         <MudSpacer />
         
-        <MudSwitch @bind-Value="Settings.Default.IsDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Dark Mode" Edge="Edge.End"/>   
+        <MudSwitch @bind-Value="Settings.Default.IsDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Dark Mode" />   
         <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
