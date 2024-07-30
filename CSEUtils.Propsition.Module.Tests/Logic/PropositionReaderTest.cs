@@ -129,9 +129,15 @@ public class PropositionReaderTest
     }
 
     [Test]
+    public void ReadBracketsPropositionTest() {
+        var proposition = PropositionReader.Read("a | -(b & c)");
+        Assert.That(proposition?.ToString(), Is.EqualTo("a ∨ (¬(b ∧ c))"));
+    }
+
+    [Test]
     public void ReadComplextProposition() {
         var proposition = PropositionReader.Read("a | -b & c");
-        Assert.That(proposition?.ToString(), Is.EqualTo("(a ∨ (¬b)) ∧ c"));
+        Assert.That(proposition?.ToString(), Is.EqualTo("a ∨ ((¬b) ∧ c)"));
     }
 
 }

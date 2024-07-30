@@ -15,7 +15,7 @@ public abstract class BinaryOperator : IProposition, IParamatized
 
     public bool IsComplete => P != null && Q != null;
 
-    public HashSet<string> Variables => P?.GetVariables().Union(Q?.GetVariables() ?? []).ToHashSet() ?? [];
+    public List<string> Variables => P?.GetVariables().Union(Q?.GetVariables() ?? []).ToList() ?? [];
 
     public override abstract string ToString();
 

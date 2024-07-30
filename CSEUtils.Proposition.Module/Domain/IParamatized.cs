@@ -4,6 +4,6 @@ public interface IParamatized
 {
     public void AddParameter(IProposition c);
 
-    public HashSet<string> Variables { get; }
+    public List<string> Variables { get; }
 
 }

@@ -1,3 +1,4 @@
+using System.Data;
 using System.Reflection;
 using CSEUtils.Proposition.Module.Domain;
 using CSEUtils.Proposition.Module.Domain.Propositions;
@@ -6,9 +7,9 @@ namespace CSEUtils.Proposition.Module.Logic.Extensions;
 
 public static class PropositionHelper
 {
-    public static HashSet<string> GetVariables(this IProposition proposition) =>
+    public static List<string> GetVariables(this IProposition proposition) =>
         proposition is IParamatized paramatized ? [.. paramatized.Variables] : 
-            (proposition is PropositionalVariable variable ? new HashSet<string>([variable.VariableKey]) : []);
+            (proposition is PropositionalVariable variable ? new List<string>([variable.VariableKey]) : []);
 
     public static List<Dictionary<string, bool>> GetAllPossibilities(this IProposition proposition) {
         var variables = proposition.GetVariables().ToList();
@@ -23,10 +24,19 @@ public static class PropositionHelper
         return result;
     }
 
+    public static char PrimaryOperator(Type propositionType) =>
+        propositionType.GetCustomAttribute<PropositionAttribute>()?.Aliases.FirstOrDefault() ?? throw new InvalidOperationException("Proposition does not have a primary operator");
+
     public static char PrimaryOperator(this IProposition proposition) =>
-        proposition.GetType().GetCustomAttribute<PropositionAttribute>()?.Aliases.FirstOrDefault() ?? throw new InvalidOperationException("Proposition does not have a primary operator");
+        PrimaryOperator(proposition.GetType());
 
     public static char[] Operators(this IProposition proposition) =>
         proposition.GetType().GetCustomAttribute<PropositionAttribute>()?.Aliases ?? throw new InvalidOperationException("Proposition does not have any operators");
+
+    public static List<(Dictionary<string, bool>, bool)> GetTruthTable(this IProposition proposition) {
+        return proposition.GetAllPossibilities()
+            .Select(option => (option, proposition.Solve(option)))
+            .ToList();
+    }
 
 }
