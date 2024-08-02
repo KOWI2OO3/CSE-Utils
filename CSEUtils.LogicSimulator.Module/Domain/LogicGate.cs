@@ -1,3 +1,5 @@
+using System.Threading.Channels;
+
 namespace CSEUtils.LogicSimulator.Module.Domain;
 
 public class LogicGate
@@ -12,7 +14,9 @@ public class LogicGate
     public virtual int OutCount { get; } = 1;
 
     public List<bool> Output => _outputs.Count == OutCount ? _outputs : new(OutCount);
-    public List<bool> Input { set => InputChanged(value); }
+    public List<bool> Input { get => _inputs; set => InputChanged(value); }
+
+    public void InputChanged() => InputChanged(_inputs);
 
     private void InputChanged(List<bool> inputs) {
         _inputs = inputs;

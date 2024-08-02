@@ -5,14 +5,27 @@ namespace CSEUtils.LogicSimulator.Module.Domain;
 
 public class Enviroment
 {
-    public List<bool> Inputs { get; set; } = [];
-    public List<bool> Outputs { get; set; } = [];
+    public Guid Id { get; } = Guid.NewGuid();
+
+    private List<bool> _inputs { get; set; } = [];
+    private List<bool> _outputs { get; set; } = [];
+
+    public List<bool> Inputs { get => _inputs; set => _inputs = value; }
+    public List<bool> Outputs { get => _outputs; private set => _outputs = value; }
 
     private Dictionary<Guid, LogicGate> Gates { get; set; } = [];
     private Dictionary<Guid, (List<Guid>, List<Guid>)> Connections { get; set; } = [];
 
+    public Enviroment(int intputSize = 1, int outputSize = 1)
+    {
+        Inputs = ListHelper.CreateList<bool>(intputSize);
+        Outputs = ListHelper.CreateList<bool>(outputSize);
+        Connections.Add(Id, (ListHelper.CreateList<Guid>(Inputs.Count), ListHelper.CreateList<Guid>(Outputs.Count)));
+    }
+
     public bool AddGate(LogicGate gate) =>
-        Gates.TryAdd(gate.Id, gate) && Connections.TryAdd(gate.Id, (new(gate.InCount), new(gate.OutCount)));
+        Gates.TryAdd(gate.Id, gate) && 
+            Connections.TryAdd(gate.Id, (ListHelper.CreateList<Guid>(gate.InCount), ListHelper.CreateList<Guid>(gate.OutCount)));
 
     public void RemoveGate(Guid gateId) 
     {
