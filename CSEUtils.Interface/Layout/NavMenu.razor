@@ -1,8 +1,8 @@
 ﻿<MudNavMenu>
     <MudNavLink Href="@GetPath("/")" Match="NavLinkMatch.All">Dashboard</MudNavLink>
-    @* <MudNavLink Href="/servers" Match="NavLinkMatch.Prefix">Servers</MudNavLink> *@
     <MudNavGroup Title="Utilities" Expanded="true">
         <MudNavLink Href="@GetPath("/proposition")"  Match="NavLinkMatch.Prefix">Proposition</MudNavLink>
+        <MudNavLink Href="@GetPath("/logic-simulator")"  Match="NavLinkMatch.Prefix">Logic Simulator</MudNavLink>
     </MudNavGroup>
     <MudNavLink Href="@GetPath("/about")"  Match="NavLinkMatch.Prefix">About</MudNavLink>
 </MudNavMenu>

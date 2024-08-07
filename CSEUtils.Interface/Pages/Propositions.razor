@@ -4,44 +4,47 @@
 
 <PageTitle>Propositions</PageTitle>
 
-<MudCard style="margin-top: 10px;">
-    <MudCardContent>
-        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
-            @foreach(var entry in PropositionHandler.OperatorsInfo) {
-                <MudTooltip Text="@(entry.Item2.ToUpper())">
-                        <MudButton OnClick="() => AppendOperator((entry.Item1))">@(entry.Item1)</MudButton>
-                </MudTooltip>
-            }
-        </MudButtonGroup>
 
-        <MudTextField @ref="@PropositionTextField" @bind-Value="Proposition" Label="Proposition" Variant="Variant.Text" Clearable="true" Error="@Error" Validation="@(new Func<string, IEnumerable<string>>(Validate))" />
-    </MudCardContent>
-</MudCard>
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudCard style="margin-top: 10px;">
+        <MudCardContent>
+            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                @foreach(var entry in PropositionHandler.OperatorsInfo) {
+                    <MudTooltip Text="@(entry.Item2.ToUpper())">
+                            <MudButton OnClick="() => AppendOperator((entry.Item1))">@(entry.Item1)</MudButton>
+                    </MudTooltip>
+                }
+            </MudButtonGroup>
 
-@if(HasProposition) 
-{
-    <MudSimpleTable style="margin-top: 5px;">
-        <thead>
-            @foreach(var variable in Variables)
-            {
-                <th>@variable</th>
-            }
-            <th>@PropositionResult</th>
-        </thead>
-        <tbody>
-            @foreach(var row in Results) 
-            {
-                <tr>
-                    @foreach(var variable in Variables) 
-                    {
-                        <td>@GetVariableValue(row, variable)</td>
-                    }
-                    <td>@GetDisplay(row.Item2)</td>
-                </tr>
-            }
-        </tbody>
-    </MudSimpleTable>
-}
+            <MudTextField @ref="@PropositionTextField" @bind-Value="Proposition" Label="Proposition" Variant="Variant.Text" Clearable="true" Error="@Error" Validation="@(new Func<string, IEnumerable<string>>(Validate))" />
+        </MudCardContent>
+    </MudCard>
+
+    @if(HasProposition) 
+    {
+        <MudSimpleTable style="margin-top: 5px;">
+            <thead>
+                @foreach(var variable in Variables)
+                {
+                    <th>@variable</th>
+                }
+                <th>@PropositionResult</th>
+            </thead>
+            <tbody>
+                @foreach(var row in Results) 
+                {
+                    <tr>
+                        @foreach(var variable in Variables) 
+                        {
+                            <td>@GetVariableValue(row, variable)</td>
+                        }
+                        <td>@GetDisplay(row.Item2)</td>
+                    </tr>
+                }
+            </tbody>
+        </MudSimpleTable>
+    }
+</MudContainer>
 
 @code {
     public MudTextField<string> PropositionTextField = new();
