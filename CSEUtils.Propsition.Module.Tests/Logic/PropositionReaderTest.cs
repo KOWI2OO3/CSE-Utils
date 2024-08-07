@@ -5,11 +5,6 @@ namespace CSEUtils.Propsition.Module.Tests.Logic;
 
 public class PropositionReaderTest
 {
-    [SetUp]
-    public void SetUp() {
-        PropositionHandler.Init();
-    }
-
     [Test]
     public void EvaluateEqualPriorityTest() {
         var proposition = PropositionReader.EvaluatePriority("a | b & c");

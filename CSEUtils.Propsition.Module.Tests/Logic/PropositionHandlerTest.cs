@@ -5,9 +5,6 @@ namespace CSEUtils.Propsition.Module.Tests.Logic.Extensions;
 
 public class PropositionHandlerTest
 {
-    [SetUp]
-    public void Setup() => PropositionHandler.Init();
-
     [Test]
     public void TestPropositionRegistration()
     {
