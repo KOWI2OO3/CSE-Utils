@@ -1,8 +1,8 @@
 namespace KOWI2003.TagWrapper.Element;
 
-public record BoundingClientRect(int Left, int Right, int Top, int Bottom) 
+public record BoundingClientRect(double Left, double Right, double Top, double Bottom) 
 {
-    public int Width => Right - Left;
+    public double Width => Right - Left;
 
-    public int Height => Bottom - Top;
+    public double Height => Bottom - Top;
 }

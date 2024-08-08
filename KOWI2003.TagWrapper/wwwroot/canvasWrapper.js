@@ -12,3 +12,9 @@ export function getProperty(element, property) {
 export function setProperty(element, property, value) {
   element[property] = value;
 }
+
+export function getBoundingClientRect(element) {
+  console.log(element); 
+  console.log(element.getBoundingClientRect());
+  return element.getBoundingClientRect();
+}

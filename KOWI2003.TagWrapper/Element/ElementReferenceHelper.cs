@@ -23,10 +23,10 @@ public static class ElementReferenceHelper
     public static async ValueTask<BoundingClientRect> BoundingClientRect(this ElementReference element, IJSObjectReference module) {
         var result = await module.InvokeAsync<IJSObjectReference>("getBoundingClientRect", element);
         
-        var left = await module.InvokeAsync<int>("getProperty", result, "left");
-        var right = await module.InvokeAsync<int>("getProperty", result, "right");
-        var top = await module.InvokeAsync<int>("getProperty", result, "top");
-        var bottom = await module.InvokeAsync<int>("getProperty", result, "bottom");
+        var left = await module.InvokeAsync<double>("getProperty", result, "left");
+        var right = await module.InvokeAsync<double>("getProperty", result, "right");
+        var top = await module.InvokeAsync<double>("getProperty", result, "top");
+        var bottom = await module.InvokeAsync<double>("getProperty", result, "bottom");
         return new(left, right, top, bottom);
     }
 

@@ -39,4 +39,7 @@ public static class CanvasContextHelper
         await ctx.FillAsync();
     }
 
+    public static void SetFontSize(this CanvasContext ctx, string fontSize) => ctx.Font = ctx.Font.WithSize(fontSize);
+
+    public static void SetFont(this CanvasContext ctx, string font) => ctx.Font = ctx.Font.WithFont(font);
 }
