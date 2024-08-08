@@ -10,6 +10,15 @@ public static class ElementReferenceHelper
     internal static async ValueTask<T> GetProperty<T>(this ElementReference element, string property) =>
         await Module.InvokeAsync<T>("getProperty", element, property);
 
+    public static async ValueTask<T> GetAttribute<T>(this ElementReference element, string property) => 
+        await GetProperty<T>(element, property);
+
+    public static async void SetAttribute<T>(this ElementReference element, string property, T value) => 
+        await element.SetAttributeAsync(property, value);
+
+    public static async Task SetAttributeAsync<T>(this ElementReference element, string property, T value) => 
+        await Module.InvokeAsync<T>("setProperty", element, property, value);
+
     public static async ValueTask<int> ClientWidth(this ElementReference element) => 
         await element.GetProperty<int>("clientWidth");
 
