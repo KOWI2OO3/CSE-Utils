@@ -5,13 +5,13 @@ using CSEUtils.LogicSimulator.Module.Domain.Gates;
 
 namespace CSEUtils.LogicSimulator.Module.Tests.Domain;
 
-public class EnviromentTests
+public class LogicEnviromentTests
 {
 
     [Test]
     public void AddGateTest() 
     {
-        var env = new Enviroment();
+        var env = new LogicEnviroment();
         var gate = new LogicGate();
         Assert.That(env.AddGate(gate), Is.True);
         Assert.That(GetGates(env)?.ContainsKey(gate.Id), Is.True);
@@ -21,7 +21,7 @@ public class EnviromentTests
     [Test]
     public void AddGateTwiceTest() 
     {
-        var env = new Enviroment();
+        var env = new LogicEnviroment();
         var gate = new LogicGate();
         Assert.That(env.AddGate(gate), Is.True);
         Assert.That(env.AddGate(gate), Is.False);
@@ -32,7 +32,7 @@ public class EnviromentTests
     [Test]
     public void RemoveGateTest() 
     {
-        var env = new Enviroment();
+        var env = new LogicEnviroment();
         var gate = new LogicGate();
         Assert.That(env.AddGate(gate), Is.True);
 
@@ -47,7 +47,7 @@ public class EnviromentTests
     [Test]
     public void AddConnectionTest() 
     {
-        var env = new Enviroment();
+        var env = new LogicEnviroment();
         var gate1 = new AndGate();
         env.AddGate(gate1);
         
@@ -71,7 +71,7 @@ public class EnviromentTests
     [Test]
     public void RemoveConnectionTest() 
     {
-        var env = new Enviroment();
+        var env = new LogicEnviroment();
         var gate1 = new AndGate();
         env.AddGate(gate1);
         
@@ -97,7 +97,7 @@ public class EnviromentTests
     [Test]
     public void RemoveGateWithConnectionTest() 
     {
-        var env = new Enviroment();
+        var env = new LogicEnviroment();
         var gate1 = new AndGate();
         env.AddGate(gate1);
         
@@ -122,14 +122,14 @@ public class EnviromentTests
     [Test]
     public void UpdateNonExisitingGateTest() 
     {
-        var env = new Enviroment();
+        var env = new LogicEnviroment();
         Assert.That(() => InvokeUpdateGate(env, Guid.NewGuid()), Throws.Exception);
     }
 
     [Test]
     public void UpdateGateTest() 
     {
-        var env = new Enviroment();
+        var env = new LogicEnviroment();
         var notGate = new NotGate();
         env.AddGate(notGate);
 
@@ -150,22 +150,22 @@ public class EnviromentTests
         Assert.That(result![0], Is.False);
     }
 
-    private static Dictionary<Guid, LogicGate>? GetGates(Enviroment env) {
-        var prop = typeof(Enviroment).GetProperty("Gates", BindingFlags.NonPublic | BindingFlags.Instance);
+    private static Dictionary<Guid, LogicGate>? GetGates(LogicEnviroment env) {
+        var prop = typeof(LogicEnviroment).GetProperty("Gates", BindingFlags.NonPublic | BindingFlags.Instance);
 
         var getter = prop?.GetGetMethod(nonPublic: true);
         return getter?.Invoke(env, null) as Dictionary<Guid, LogicGate>;
     }
 
-    private static Dictionary<Guid, (List<Connection>, List<Connection>)>? GetConnection(Enviroment env) {
-        var prop = typeof(Enviroment).GetProperty("Connections", BindingFlags.NonPublic | BindingFlags.Instance);
+    private static Dictionary<Guid, (List<Connection>, List<Connection>)>? GetConnection(LogicEnviroment env) {
+        var prop = typeof(LogicEnviroment).GetProperty("Connections", BindingFlags.NonPublic | BindingFlags.Instance);
 
         var getter = prop?.GetGetMethod(nonPublic: true);
         return getter?.Invoke(env, null) as Dictionary<Guid, (List<Connection>, List<Connection>)>;
     }
 
-    private static List<bool>? InvokeUpdateGate(Enviroment env, Guid gateId) {
-        var method = typeof(Enviroment).GetMethod("UpdateGate", BindingFlags.NonPublic | BindingFlags.Instance);
+    private static List<bool>? InvokeUpdateGate(LogicEnviroment env, Guid gateId) {
+        var method = typeof(LogicEnviroment).GetMethod("UpdateGate", BindingFlags.NonPublic | BindingFlags.Instance);
         return method?.Invoke(env, [gateId]) as List<bool>;
     }
 }

@@ -3,7 +3,7 @@ using CSEUtils.LogicSimulator.Module.Logic.Extensions;
 
 namespace CSEUtils.LogicSimulator.Module.Domain;
 
-public class Enviroment
+public class LogicEnviroment
 {
     public Guid Id { get; } = Guid.NewGuid();
 
@@ -25,7 +25,7 @@ public class Enviroment
     // Connection defines to which gate the input & output are connected respectively
     private Dictionary<Guid, (List<Connection>, List<Connection>)> Connections { get; set; } = [];
 
-    public Enviroment(int intputSize = 1, int outputSize = 1)
+    public LogicEnviroment(int intputSize = 1, int outputSize = 1)
     {
         Inputs = ListHelper.CreateList<bool>(InputCount = intputSize);
         Outputs = ListHelper.CreateList<bool>(OutputCount = outputSize);
@@ -35,11 +35,13 @@ public class Enviroment
     public bool AddGate(LogicGate gate)
     { 
         return Gates.TryAdd(gate.Id, gate) && 
-            Connections.TryAdd(gate.Id, (new(gate.InCount), new(gate.OutCount)));
+            Connections.TryAdd(gate.Id, (new(gate.InCount), new(gate.OutCount)))
+            && GatePositions.TryAdd(gate.Id, new());
     }
 
     public void RemoveGate(Guid gateId) 
     {
+        GatePositions.Remove(gateId);
         Connections.Remove(gateId);
         Gates.Remove(gateId);
         foreach (var io in Connections.Values)
@@ -125,4 +127,6 @@ public class Enviroment
             throw new NotSupportedException("Gate was not registered in the enviroment");
         return gate.Output;
     }
+
+    public bool TryGetGate(Guid gateId, out LogicGate? gate) => Gates.TryGetValue(gateId, out gate);
 }
