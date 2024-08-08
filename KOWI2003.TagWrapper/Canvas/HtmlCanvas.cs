@@ -23,8 +23,8 @@ public class HtmlCanvas(IJSObjectReference module, ElementReference element)
         height = await Element.GetAttribute<double>(nameof(height));
     }
 
-    public async Task<CanvasContext> GetContext2d() {
-        var JSContext = await Module.InvokeAsync<IJSObjectReference>("getContext2d", Element);
+    public async Task<CanvasContext> GetContext2d(bool alpha = true) {
+        var JSContext = await Module.InvokeAsync<IJSObjectReference>("getContext2d", Element, alpha);
         var context = new CanvasContext(Module, JSContext);
         await context.InitializeProperties();
         return context;

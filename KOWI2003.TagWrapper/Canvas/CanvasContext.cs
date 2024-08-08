@@ -1,5 +1,6 @@
 
 using KOWI2003.TagWrapper.Canvas.Types;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace KOWI2003.TagWrapper.Canvas;
@@ -51,19 +52,16 @@ public class CanvasContext(IJSObjectReference module, IJSObjectReference JSObjec
         shadowOffsetY = await GetProperty<double>(nameof(shadowOffsetY));
     }
 
-    public async void ClearRect(double x, double y, double width, double height) =>
+    public async void ClearRect(int x, int y, int width, int height) =>
         await JSObject.InvokeVoidAsync("clearRect", x, y, width, height);
 
-    public async Task ClearRectAsync(double x, double y, double width, double height) =>
+    public async Task ClearRectAsync(int x, int y, int width, int height) =>
         await JSObject.InvokeVoidAsync("clearRect", x, y, width, height);
 
-    public async void FillRect(double x, double y, double width, double height) =>
+    public async void FillRect(int x, int y, int width, int height) =>
         await FillRectAsync(x, y, width, height);
 
-    public async Task FillRectAsync(double x, double y, double width, double height) =>
-        await JSObject.InvokeVoidAsync("fillRect", x, y, width, height);
-
-    public async Task FillRectAsyncAsync(double x, double y, double width, double height) =>
+    public async Task FillRectAsync(int x, int y, int width, int height) =>
         await JSObject.InvokeVoidAsync("fillRect", x, y, width, height);
 
     public async void BeginPath() =>
@@ -72,16 +70,16 @@ public class CanvasContext(IJSObjectReference module, IJSObjectReference JSObjec
     public async Task BeginPathAsync() =>
         await JSObject.InvokeVoidAsync("beginPath");
 
-    public async void LineTo(double x, double y) =>
+    public async void LineTo(int x, int y) =>
         await JSObject.InvokeVoidAsync("lineTo", x, y);
 
-    public async Task LineToAsync(double x, double y) =>
+    public async Task LineToAsync(int x, int y) =>
         await JSObject.InvokeVoidAsync("lineTo", x, y);
 
-    public async void MoveTo(double x, double y) =>
+    public async void MoveTo(int x, int y) =>
         await JSObject.InvokeVoidAsync("moveTo", x, y);
 
-    public async Task MoveToAsync(double x, double y) =>
+    public async Task MoveToAsync(int x, int y) =>
         await JSObject.InvokeVoidAsync("moveTo", x, y);
 
     public async void ClosePath() =>
@@ -120,16 +118,16 @@ public class CanvasContext(IJSObjectReference module, IJSObjectReference JSObjec
     public async Task RestoreAsync() =>
         await JSObject.InvokeVoidAsync("restore");
 
-    public async void Arc(double x, double y, double radius, double startAngle, double endAngle, bool counterClockwise = false) =>
+    public async void Arc(int x, int y, double radius, double startAngle, double endAngle, bool counterClockwise = false) =>
         await JSObject.InvokeVoidAsync("arc", x, y, radius, startAngle, endAngle, counterClockwise);
 
-    public async Task ArcAsync(double x, double y, double radius, double startAngle, double endAngle, bool counterClockwise = false) =>
+    public async Task ArcAsync(int x, int y, double radius, double startAngle, double endAngle, bool counterClockwise = false) =>
         await JSObject.InvokeVoidAsync("arc", x, y, radius, startAngle, endAngle, counterClockwise);
 
-    public async void ArcTo(double x1, double y1, double x2, double y2, double radius) =>
+    public async void ArcTo(int x1, int y1, int x2, int y2, double radius) =>
         await JSObject.InvokeVoidAsync("arcTo", x1, y1, x2, y2, radius);
 
-    public async Task ArcToAsync(double x1, double y1, double x2, double y2, double radius) =>
+    public async Task ArcToAsync(int x1, int y1, int x2, int y2, double radius) =>
         await JSObject.InvokeVoidAsync("arcTo", x1, y1, x2, y2, radius);
 
     public async void QuadraticCurveTo(double cpx, double cpy, double x, double y) =>
@@ -144,67 +142,71 @@ public class CanvasContext(IJSObjectReference module, IJSObjectReference JSObjec
     public async Task BrazierCurveToAsync(double cp1x, double cp1y, double cp2x, double cp2y, double x, double y) =>
         await JSObject.InvokeVoidAsync("bezierCurveTo", cp1x, cp1y, cp2x, cp2y, x, y);
 
-    public async void FillText(string text, double x, double y) =>
+    public async void FillText(string text, int x, double y) =>
         await JSObject.InvokeVoidAsync("fillText", text, x, y);
 
-    public async Task FillTextAsync(string text, double x, double y) =>
+    public async Task FillTextAsync(string text, int x, int y) =>
         await JSObject.InvokeVoidAsync("fillText", text, x, y);
 
-    public async void FillText(string text, double x, double y, double maxWidth) =>
+    public async void FillText(string text, int x, double y, int maxWidth) =>
         await JSObject.InvokeVoidAsync("fillText", text, x, y, maxWidth);
 
-    public async Task FillTextAsync(string text, double x, double y, double maxWidth) =>
+    public async Task FillTextAsync(string text, int x, int y, int maxWidth) =>
         await JSObject.InvokeVoidAsync("fillText", text, x, y, maxWidth);
 
-    public async void StrokeText(string text, double x, double y) =>
+    public async void StrokeText(string text, int x, int y) =>
         await JSObject.InvokeVoidAsync("strokeText", text, x, y);
 
-    public async Task StrokeTextAsync(string text, double x, double y) =>
+    public async Task StrokeTextAsync(string text, int x, int y) =>
         await JSObject.InvokeVoidAsync("strokeText", text, x, y);
 
-    public async void StrokeText(string text, double x, double y, double maxWidth) =>
+    public async void StrokeText(string text, int x, int y, int maxWidth) =>
         await JSObject.InvokeVoidAsync("strokeText", text, x, y, maxWidth);
 
-    public async Task StrokeTextAsync(string text, double x, double y, double maxWidth) =>
+    public async Task StrokeTextAsync(string text, int x, int y, int maxWidth) =>
         await JSObject.InvokeVoidAsync("strokeText", text, x, y, maxWidth);
 
-    public async void StrokeRect(double x, double y, double width, double height) =>
+    public async void StrokeRect(int x, int y, int width, int height) =>
         await JSObject.InvokeVoidAsync("strokeRect", x, y, width, height);
 
-    public async Task StrokeRectAsync(double x, double y, double width, double height) =>
+    public async Task StrokeRectAsync(int x, int y, int width, int height) =>
         await JSObject.InvokeVoidAsync("strokeRect", x, y, width, height);
 
-    public async void Rect(double x, double y, double width, double height) =>
+    public async void Rect(int x, int y, int width, int height) =>
         await JSObject.InvokeVoidAsync("rect", x, y, width, height);
 
-    public async Task RectAsync(double x, double y, double width, double height) =>
+    public async Task RectAsync(int x, int y, int width, int height) =>
         await JSObject.InvokeVoidAsync("rect", x, y, width, height);
 
-    public async void RoundRect(double x, double y, double width, double height, double radii) =>
+    public async void RoundRect(int x, int y, int width, int height, int radii) =>
         await JSObject.InvokeVoidAsync("roundRect", x, y, width, height, radii);
 
-    public async Task RoundRectAsync(double x, double y, double width, double height, double radii) =>
+    public async Task RoundRectAsync(int x, int y, int width, int height, int radii) =>
         await JSObject.InvokeVoidAsync("roundRect", x, y, width, height, radii);
 
-    public async void RoundRect(double x, double y, double width, double height, double[] radii) =>
+    public async void RoundRect(int x, int y, int width, int height, int[] radii) =>
         await JSObject.InvokeVoidAsync("roundRect", x, y, width, height, radii);
 
-    public async Task RoundRectAsync(double x, double y, double width, double height, double[] radii) =>
+    public async Task RoundRectAsync(int x, int y, double width, int height, int[] radii) =>
         await JSObject.InvokeVoidAsync("roundRect", x, y, width, height, radii);
 
-    public async void Ellipse(double x, double y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, bool counterClockwise = false) =>
+    public async void Ellipse(int x, int y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, bool counterClockwise = false) =>
         await JSObject.InvokeVoidAsync("ellipse", x, y, radiusX, radiusY, rotation, startAngle, endAngle, counterClockwise);
 
-    public async Task EllipseAsync(double x, double y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, bool counterClockwise = false) =>
+    public async Task EllipseAsync(int x, int y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, bool counterClockwise = false) =>
         await JSObject.InvokeVoidAsync("ellipse", x, y, radiusX, radiusY, rotation, startAngle, endAngle, counterClockwise);
 
-    public async void SetLineDash(double[] segments) =>
+    public async void SetLineDash(int[] segments) =>
         await JSObject.InvokeVoidAsync("setLineDash", segments);
 
-    public async Task SetLineDashAsync(double[] segments) =>
+    public async Task SetLineDashAsync(int[] segments) =>
         await JSObject.InvokeVoidAsync("setLineDash", segments);
 
     // CreateRadialGradient
 
     // public async Task<IJSObjectReference> MeasureText()
+    
+    public async Task ScaleCanvasToDisplay(ElementReference canvas) {
+        await Module.InvokeVoidAsync("scaleCanvasToDisplay", JSObject, canvas);
+    }
 }
