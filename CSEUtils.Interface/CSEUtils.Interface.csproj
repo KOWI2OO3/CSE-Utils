@@ -13,7 +13,6 @@
     <ProjectReference Include="..\CSEUtils.Proposition.Module\CSEUtils.Proposition.Module.csproj" />
     <ProjectReference Include="..\CSEUtils.LogicSimulator.Module\CSEUtils.LogicSimulator.Module.csproj" />
     <ProjectReference Include="..\CSEUtils.App.Shared\CSEUtils.App.Shared.csproj" />
-    <ProjectReference Include="..\KOWI2003.TagWrapper\KOWI2003.TagWrapper.csproj" />
     <ProjectReference Include="..\BlazeFrame\BlazeFrame.csproj" />
   </ItemGroup>
 </Project>
