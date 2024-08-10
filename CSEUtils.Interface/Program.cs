@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using CSEUtils.Interface;
 using KOWI2003.TagWrapper;
+using BlazeFrame;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -12,6 +13,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 builder.Services.AddMudServices();
 
+builder.Services.AddBlazeFrameServices();
 builder.Services.AddTagWrapperServices();
 
 // GetType().Assembly.Modules.ForEach(module => module.RegisterServices(builder.Services));

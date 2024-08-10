@@ -16,4 +16,10 @@ public record Vector2(double X, double Y)
     public static Vector2 operator *(Vector2 vec, double scalar) => new(vec.X * scalar, vec.Y * scalar);
 
     public static Vector2 operator /(Vector2 vec, double scalar) => new(vec.X / scalar, vec.Y / scalar);
+
+    public static implicit operator (double, double)(Vector2 vec) => (vec.X, vec.Y);
+    public static implicit operator Vector2((double, double) vec) => new(vec.Item1, vec.Item2);
+    
+    public static implicit operator (int, int)(Vector2 vec) => ((int)vec.X, (int)vec.Y);
+    public static implicit operator Vector2((int, int) vec) => new(vec.Item1, vec.Item2);
 }
