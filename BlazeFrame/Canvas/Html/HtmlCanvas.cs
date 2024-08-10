@@ -36,10 +36,9 @@ public class HtmlCanvas(JSInvoker invoker, ElementReference element)
         );
     }
 
-    public async Task ScaleCanvasToDisplay(Context2D ctx) {
+    public async Task ScaleCanvasToDisplay() {
         if(!Invoker.InvokeBatched(null, "scaleCanvasToDisplay", Element))
             await Invoker.Module!.InvokeVoidAsync("scaleCanvasToDisplay", Element);
         await InitializePropertiesAsync();
-        await ctx.InitializeProperties();
     }
 }

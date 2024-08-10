@@ -34,7 +34,7 @@ public class Context2D(JSInvoker invoker, IJSObjectReference JSObject) : IModule
     public double ShadowOffsetX { get => shadowOffsetX; set => SetProperty(nameof(shadowOffsetX), shadowOffsetX = value); } 
 
     private double shadowOffsetY  { get; set; }
-    public double ShadowOffsetY { get => shadowOffsetY; set => SetProperty(nameof(shadowOffsetY), shadowOffsetY = value); } 
+    public double ShadowOffsetY { get => shadowOffsetY; set => SetProperty(nameof(shadowOffsetY), shadowOffsetY = value); }
 
     internal async Task InitializeProperties()
     {
@@ -151,10 +151,17 @@ public class Context2D(JSInvoker invoker, IJSObjectReference JSObject) : IModule
 
     public async Task ResetTransform() => 
         await Invoke("resetTransform");
-    
 
     // CreateRadialGradient
 
     // public async Task<IJSObjectReference> MeasureText()
+
+    public async Task ScaleCanvasToDisplay(HtmlCanvas? canvas) {
+        if(!Invoker.InvokeBatched(null, "scaleContextToDisplay", JSObject))
+            await Invoker.Module!.InvokeVoidAsync("scaleContextToDisplay", JSObject);
+        
+        if(canvas != null)
+            await canvas.InitializePropertiesAsync();
+    }
 
 }

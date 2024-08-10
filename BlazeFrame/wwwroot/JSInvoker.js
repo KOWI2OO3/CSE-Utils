@@ -35,9 +35,15 @@ export function showPrompt(message) {
     return prompt(message, 'Type anything here');
 }
 
-export function scaleCanvasToDisplay(canvas) {
-    let ctx = canvas.getContext('2d');
+export function scaleContextToDisplay(ctx) {
+    scaleToDisplay(ctx.canvas, ctx);
+}
 
+export function scaleCanvasToDisplay(canvas) {
+    scaleToDisplay(canvas, canvas.getContext('2d'));
+}
+
+function scaleToDisplay(canvas, ctx) {
     // Get the DPR and size of the canvas
     const dpr = window.devicePixelRatio;
     const rect = canvas.getBoundingClientRect();
@@ -52,4 +58,5 @@ export function scaleCanvasToDisplay(canvas) {
     // Set the "drawn" size of the canvas
     canvas.style.width = `${rect.width}px`;
     canvas.style.height = `${rect.height}px`;
+
 }
