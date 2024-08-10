@@ -16,7 +16,7 @@ public class LogicEnviroment
     public List<bool> Inputs { get => _inputs; set => _inputs = value; }
     public List<bool> Outputs { get => _outputs; private set => _outputs = value; }
 
-    public List<LogicGate> GateList => new(Gates.Values);
+    public List<LogicGate> GateList => [.. Gates.Values];
 
     public Dictionary<Guid, Vector2> GatePositions { get; set; } = [];
 
@@ -113,7 +113,7 @@ public class LogicEnviroment
         var inputs = connections.Item1;
         var inputValues = ListHelper.CreateList<bool>(gate.InCount);
         foreach(var connection in inputs) 
-            inputValues[connection.Input.Index] = GetGateOutputs(gateId)[connection.Output.Index];
+            inputValues[connection.Input.Index] = GetGateOutputs(connection.Output.GateId)[connection.Output.Index];
         
         gate.Input = inputValues;
         return gate.Output;
@@ -129,4 +129,6 @@ public class LogicEnviroment
     }
 
     public bool TryGetGate(Guid gateId, out LogicGate? gate) => Gates.TryGetValue(gateId, out gate);
+
+    public IEnumerable<Connection> GetConnections() => Connections.Values.SelectMany(connections => connections.Item1);
 }

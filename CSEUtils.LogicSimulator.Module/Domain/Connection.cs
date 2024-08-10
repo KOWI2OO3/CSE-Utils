@@ -1,6 +1,6 @@
 namespace CSEUtils.LogicSimulator.Module.Domain;
 
-public record Connection(Port Input, Port Output, (double, double)[] Path)
+public record Connection(Port Input, Port Output, (int, int)[] Path)
 {
     public Connection(Port Input, Port Output) : this(Input, Output, []) { }
 

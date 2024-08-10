@@ -150,6 +150,29 @@ public class LogicEnviromentTests
         Assert.That(result![0], Is.False);
     }
 
+    [Test]
+    public void TestGateUpdates() 
+    {
+        var env = new LogicEnviroment();
+        var notGate = new NotGate();
+        env.AddGate(notGate);
+        var andGate = new AndGate();
+        env.AddGate(andGate);
+
+        var connection = new Connection(notGate, 0, andGate, 0);
+        env.AddConnection(connection);
+        connection = new Connection(notGate, 0, andGate, 1);
+        env.AddConnection(connection);
+
+        env.Update();
+
+        Assert.That(notGate.Output[0], Is.True);
+
+        env.Update();
+        
+        Assert.That(andGate.Output[0], Is.True);
+    }
+
     private static Dictionary<Guid, LogicGate>? GetGates(LogicEnviroment env) {
         var prop = typeof(LogicEnviroment).GetProperty("Gates", BindingFlags.NonPublic | BindingFlags.Instance);
 
