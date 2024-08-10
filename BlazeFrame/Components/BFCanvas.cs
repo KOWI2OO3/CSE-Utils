@@ -1,3 +1,5 @@
+using System.Reflection.Metadata;
+using BlazeFrame.Canvas.Html;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -21,7 +23,23 @@ public partial class BFCanvas : ComponentBase
     [Parameter]
     public string Style { get; set; } = string.Empty;
 
+    [Parameter]
+    public EventCallback<Context2D> OnRender { get; set; }
+
     private ElementReference _canvasRef { get; set; }
 
     public ElementReference CanvasRef => _canvasRef;
+
+    public Context2D? Context { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Context ??= await CanvasRef.GetContext2D();
+        if(Context == null) return;
+        Context.StartBatch();
+
+        await OnRender.InvokeAsync(Context);
+
+        await Context.EndBatch();
+    }
 }
