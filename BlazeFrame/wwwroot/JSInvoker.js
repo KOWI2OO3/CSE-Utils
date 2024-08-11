@@ -58,5 +58,4 @@ function scaleToDisplay(canvas, ctx) {
     // Set the "drawn" size of the canvas
     canvas.style.width = `${rect.width}px`;
     canvas.style.height = `${rect.height}px`;
-
 }

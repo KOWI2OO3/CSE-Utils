@@ -8,6 +8,7 @@ namespace BlazeFrame.Components;
 public partial class BFCanvas : ComponentBase
 {
     // TODO: Use JSRuntime to not require the services if the user only uses the components?? 
+    // TODO: Allow screen scaling (needs experimenting)
 
     protected readonly string Id = Guid.NewGuid().ToString();
 

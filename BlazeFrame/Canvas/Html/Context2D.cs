@@ -156,7 +156,7 @@ public class Context2D(JSInvoker invoker, IJSObjectReference JSObject) : IModule
 
     // public async Task<IJSObjectReference> MeasureText()
 
-    public async Task ScaleCanvasToDisplay(HtmlCanvas? canvas) {
+    public async Task ScaleCanvasToDisplay(HtmlCanvas? canvas = null) {
         if(!Invoker.InvokeBatched(null, "scaleContextToDisplay", JSObject))
             await Invoker.Module!.InvokeVoidAsync("scaleContextToDisplay", JSObject);
         

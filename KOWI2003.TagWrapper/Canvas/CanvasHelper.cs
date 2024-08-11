@@ -5,7 +5,7 @@ using static KOWI2003.TagWrapper.JSModule;
 namespace KOWI2003.TagWrapper.Canvas;
 
 public static class CanvasHelper
-{
+{   
     public static async Task<HtmlCanvas> AsCanvasAsync(this ElementReference element) {
         var canvas = new HtmlCanvas(Module, element);
         await canvas.InitializePropertiesAsync();
