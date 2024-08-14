@@ -1,5 +1,3 @@
-using BlazeFrame.Logic;
-using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace BlazeFrame;
@@ -14,11 +12,15 @@ public class JSInvoker
     public const string GET_PROPERTY = "getProperty";
     public const string INVOKE_FUNCTION = "invokeFunction";
     
+    public const string INVOKE_CALLBACK_FUNCTION = "invokeCallbackFunction";
+    
     private IJSRuntime? JSRuntime { get; set; }
 
     internal IJSObjectReference? Module { get; private set; }
 
     private readonly List<object?[]> batchedCalls = [];
+
+    private readonly Dictionary<Guid, (Type, Action<object>)> batchCallbacks = [];
 
     private bool isBatching = false;
 
@@ -95,6 +97,8 @@ public class JSInvoker
     public async ValueTask<T> InvokeAsync<T>(object? jSObject, string methodName, params object?[] args) {
         if(Module == null)
             throw new InvalidOperationException("Module not initialized");
+        if(jSObject == null)
+            return await Module.InvokeAsync<T>(methodName, args);
         return await Module.InvokeAsync<T>("invokeFunction", jSObject, methodName, args);
     }
 

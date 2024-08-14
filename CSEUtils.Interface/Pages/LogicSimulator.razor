@@ -1,0 +1,169 @@
+@using BlazeFrame
+@using BlazeFrame.Canvas.Html
+@using BlazeFrame.Logic
+@using CSEUtils.App.Shared.Domain;
+@using CSEUtils.Interface.Logic
+@using CSEUtils.LogicSimulator.Module.Domain;
+@using CSEUtils.LogicSimulator.Module.Domain.Gates
+@using CSEUtils.LogicSimulator.Module.Logic;
+@using CSEUtils.LogicSimulator.Module.Logic.Extensions;
+@using System.Reflection.Metadata;
+@inject IJSRuntime JSRuntime
+
+@page "/logic-simulator"
+
+<PageTitle>Logic Simulator</PageTitle>
+
+<MudCard class="canvas-wrapper">
+    <div class="@CanvasClass"
+        @onmousemove="MoveMouse"
+        @oncontextmenu="OnRightClick"
+        @oncontextmenu:preventDefault="true"
+    >
+        <MudPaper Elevation="25" Square class="toolbar" >
+            <MudToolBar>
+                <MudIconButton OnClick="() => IsGateMenuOpen = !IsGateMenuOpen" Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Class="mr-5" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Add" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Edit" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Remove" Color="Color.Inherit" />
+                <MudSpacer />
+                <MudIconButton Icon="@Icons.Material.Outlined.Notifications" />
+                <MudIconButton Icon="@Icons.Material.Outlined.PushPin" />
+                <MudIconButton Icon="@Icons.Material.Outlined.PeopleAlt" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Settings" Color="Color.Inherit" />
+                <MudIconButton OnClick="() => IsFullScreen = !IsFullScreen" 
+                    Icon="@(IsFullScreen ? Icons.Material.Filled.FullscreenExit : Icons.Material.Filled.Fullscreen)" Color="Color.Inherit" />
+            </MudToolBar>
+        </MudPaper>
+        <MudPaper Width="250px" Elevation="0" Class="py-1 gate-menu" style="@(IsGateMenuOpen ? "" : "display: none")">
+            <MudNavMenu Margin="Margin.Normal" Color="Color.Error">
+                <MudNavLink class="disable-text-interaction" OnClick="() => PendingAddGate(new AndGate())">And</MudNavLink>
+                <MudNavLink class="disable-text-interaction" OnClick="() => PendingAddGate(new NotGate())">Not</MudNavLink>
+            </MudNavMenu>
+        </MudPaper>
+
+        @* Wrapper *@
+        <canvas @ref="Canvas" class="canvas-fit disable-text-interaction" width="@(Resolution.Item1)" height="@(Resolution.Item2)" 
+            @onmousedown="MouseDown"/>
+    </div>
+</MudCard>
+
+@code 
+{
+    private readonly (int, int) Resolution = 
+    //(1280, 720);
+    (1920, 1080);
+    
+    private Vector2 MousePositionAbsolute { get; set; } = new();
+
+    private string CanvasClass => IsFullScreen ? "canvas-container-fullscreen" : "canvas-container";
+
+    private bool IsFullScreen { get; set; }
+
+    private bool IsGateMenuOpen { get; set; }
+
+    private LogicEnviroment Enviroment { get; set; } = new();
+
+    private ElementReference Canvas { get; set; }
+
+    private ElementReference HoldingCanvas { get; set; }
+
+    private Context2D? Context { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        //if(Enviroment.GateList.Count != 0)
+            await Render();
+    }
+
+    private void PendingAddGate(LogicGate gate) => AddGateAndHold(gate);
+
+    private void AddGateAndHold(LogicGate gate) 
+    {
+        AddGate(gate);
+        MouseHolding.Add(gate.Id, (
+            0,
+            (MouseHolding.Count - 1) * (10 + gate.GetHeight())  
+        ));
+    }
+
+    private void AddGate(LogicGate gate) 
+    {
+        Enviroment.AddGate(gate);
+    }
+
+}
+<style scoped>
+
+* {
+    /*--bg: #272727;*/
+    --bg: white;
+}
+
+.canvas-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 88vh; /* Adjust this if you want it to fill the viewport height */
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.canvas-container-fullscreen {
+    position: fixed; /* or absolute if you prefer */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Viewport width */
+    height: 100vh; /* Viewport height */
+    z-index: 9999; /* Ensures it is on top of other elements */
+    background-color: var(--bg);
+}
+
+.canvas-container {
+    position: relative;
+    flex-grow: 1;
+    width: 100%; /* Ensure it fills the available width */
+    background-color: var(--bg);
+
+    
+    border-radius: 10px 10px 5px 5px;
+}
+
+.canvas-container .toolbar {
+    /* border-radius: 5px; */
+}
+
+.canvas-container-fullscreen .toolbar {
+    /* border-radius: 0px 0px 5px 5px; */ 
+}
+
+.canvas-fit {
+    background-color: var(--bg);
+    width: 100%;
+    height: 100%;
+}
+
+.disable-text-interaction {
+    user-select: none;
+}
+
+.gate-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    height: 20px;
+    user-select: none;
+}
+
+.gate-menu {
+    position: absolute;
+    border-radius: 0px;
+}
+
+.holding-overlay {
+    position: fixed;
+}
+
+</style>
