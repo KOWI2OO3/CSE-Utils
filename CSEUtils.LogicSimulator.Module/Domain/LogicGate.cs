@@ -7,8 +7,8 @@ public class LogicGate
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     
-    private List<bool> _inputs {get;set; } = [];
-    private List<bool> _outputs {get;set; } = [];
+    private List<bool> _inputs { get; set; } = [];
+    private List<bool> _outputs { get; set; } = [];
 
     public virtual string Name { get; set; } = string.Empty;
     public virtual int InCount { get; } = 1;
