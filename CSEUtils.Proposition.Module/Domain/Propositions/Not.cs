@@ -14,7 +14,7 @@ public class Not : IProposition, IParamatized
 
     public void AddParameter(IProposition c) => P ??= c;
 
-    public HashSet<string> Variables => P?.GetVariables() ?? [];
+    public List<string> Variables => P?.GetVariables() ?? [];
 
     override public string ToString() => $"¬{P?.DisplayString}";
 }

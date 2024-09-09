@@ -1,4 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
 using CSEUtils.Proposition.Module.Domain;
 using CSEUtils.Proposition.Module.Domain.Propositions;
 
@@ -8,36 +7,52 @@ public class PropositionReader
 {
     public static IProposition? Read(string proposition) {
         int pointer = 0;
+        proposition = EvaluatePriority(proposition, pointer);
         return Read(proposition, ref pointer);
     }
 
     private static IProposition? Read(string proposition, ref int pointer)
     {
-        proposition = proposition.Replace(" ", "");
         IProposition? cache = null;
 
         while(pointer < proposition.Length) {
             char currentChar = proposition[pointer];
-            if(char.IsLetter(currentChar))
+            if(currentChar == '(') 
+            {
+                pointer++;
+                cache = Read(proposition, ref pointer);
+            }
+            else if(currentChar == ')') 
+            {
+                pointer++;
+                break;
+            }
+
+            else if(char.IsLetter(currentChar))
                 cache = ReadVariable(proposition, ref pointer);
             else if(currentChar.IsOperator())
                 cache = ReadProposition(proposition, ref pointer, ref cache);
+            else 
+                throw new FormatException($"Unknown character {currentChar}");
         }
 
         return cache;
     }
 
-    public static IProposition ReadProposition(string proposition, ref int pointer, ref IProposition? cache) 
+    private static IProposition ReadProposition(string proposition, ref int pointer, ref IProposition? cache) 
     {
         var result = PropositionHandler.GetProposition(proposition[pointer++], []) ?? throw new FormatException("");
         if(result is BinaryOperator binaryOperator) 
         {
             if(cache == null)
-                throw new FormatException("Binary operators should have a variable type on the left side of the operator");
+                throw new FormatException("Binary operators should have a variable or proposition on the left and right side of the operator");
             binaryOperator.AddParameter(cache);
         }
         cache = null;
         if(result is IParamatized paramatized) {
+            if(pointer > proposition.Length) 
+                throw new FormatException("Binary operators should have a variable or proposition on the left and right side of the operator");
+            
             if(char.IsLetter(proposition[pointer])) 
                 paramatized.AddParameter(ReadVariable(proposition, ref pointer));
             else
@@ -47,7 +62,7 @@ public class PropositionReader
         return result;
     }
 
-    public static PropositionalVariable ReadVariable(string proposition, ref int pointer)
+    private static PropositionalVariable ReadVariable(string proposition, ref int pointer)
     {
         var variable = "";
         while(pointer < proposition.Length && char.IsLetter(proposition[pointer])) {
