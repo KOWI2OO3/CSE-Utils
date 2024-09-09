@@ -11,6 +11,8 @@ namespace CSEUtils.Interface.Pages;
 
 public partial class LogicSimulator : ComponentBase
 {
+    private HtmlCanvas Canvas { get; set; }
+
     private Vector2 MousePosition { get; set; } = new();
 
     private List<(int, int)> ActivePath { get; set; } = []; 
@@ -26,12 +28,15 @@ public partial class LogicSimulator : ComponentBase
     {
         Enviroment.Update();
 
-        Context ??= await Canvas.GetContext2D();
+        Context ??= await CanvasRef.GetContext2D();
+        Canvas ??= await CanvasRef.asHtmlCanvas();
         if(Context == null) return;
 
         Context.StartBatch();
         Context.FillStyle = "white";
         await Context.ClearRectAsync(0, 0, Resolution.Item1, Resolution.Item2);
+
+        Context.DrawInputs(Canvas, Enviroment);
 
         foreach(var gate in Enviroment.GateList)
         {
@@ -56,7 +61,7 @@ public partial class LogicSimulator : ComponentBase
     
     private async Task<(double, double)> MouseToCanvas(Vector2 mousePosition) 
     {
-        var rect = await Canvas.GetBoundingClientRect();
+        var rect = await CanvasRef.GetBoundingClientRect();
 
         var scaleX = Resolution.Item1 / (double)rect.Width;
         var scaleY = Resolution.Item2 / (double)rect.Height;

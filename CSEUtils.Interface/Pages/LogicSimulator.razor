@@ -23,7 +23,7 @@
         <MudPaper Elevation="25" Square class="toolbar" >
             <MudToolBar>
                 <MudIconButton OnClick="() => IsGateMenuOpen = !IsGateMenuOpen" Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Class="mr-5" />
-                <MudIconButton Icon="@Icons.Material.Outlined.Add" />
+                <MudIconButton OnClick="AddInput" Icon="@Icons.Material.Outlined.Add" />
                 <MudIconButton Icon="@Icons.Material.Outlined.Edit" />
                 <MudIconButton Icon="@Icons.Material.Outlined.Remove" Color="Color.Inherit" />
                 <MudSpacer />
@@ -43,7 +43,7 @@
         </MudPaper>
 
         @* Wrapper *@
-        <canvas @ref="Canvas" class="canvas-fit disable-text-interaction" width="@(Resolution.Item1)" height="@(Resolution.Item2)" 
+        <canvas @ref="CanvasRef" class="canvas-fit disable-text-interaction" width="@(Resolution.Item1)" height="@(Resolution.Item2)" 
             @onmousedown="MouseDown"/>
     </div>
 </MudCard>
@@ -64,7 +64,7 @@
 
     private LogicEnviroment Enviroment { get; set; } = new();
 
-    private ElementReference Canvas { get; set; }
+    private ElementReference CanvasRef { get; set; }
 
     private ElementReference HoldingCanvas { get; set; }
 
@@ -91,6 +91,10 @@
         Enviroment.AddGate(gate);
     }
 
+    private void AddInput()
+    {
+        Enviroment.Inputs.Add(false);
+    }
 }
 <style scoped>
 

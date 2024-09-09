@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Numerics;
 using BlazeFrame.Canvas.Html;
 using CSEUtils.LogicSimulator.Module.Domain;
@@ -134,4 +135,23 @@ public static class GateHelper
 
     public static List<(Port, (int , int))> GetPortAndPositions(this LogicGate gate, LogicEnviroment env) =>
         gate.GetPorts().Select(port => (port, port.GetPosition(env))).ToList();
+
+
+    public static async void DrawInputs(this Context2D ctx, HtmlCanvas canvas, LogicEnviroment env) 
+    {
+        await ctx.DrawRectangleAsync(0, 0, 100, 100000, "rgb(80, 80, 80)");
+        await ctx.DrawRectangleAsync((int)canvas.Width - 100, 0, 100, 100000, "rgb(80, 80, 80)");
+
+        for(var i = 0; i < env.Inputs.Count; i++)
+            ctx.DrawInput(canvas, 50 + i * 50, env.Inputs[i]);
+    }
+
+    private static async void DrawInput(this Context2D ctx, HtmlCanvas canvas, int y, bool value) 
+    {
+        await ctx.DrawCircleAsync(50, y, (int)(PortRadius * 1.5f), value ? "red" : "black");
+        var lineWidth = 4;
+        await ctx.DrawRectangleAsync(50, y - lineWidth, 50, lineWidth * 2, "black");
+        
+        await ctx.DrawCircleAsync(100, y, PortRadius, "black");
+    }
 }
