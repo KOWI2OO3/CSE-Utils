@@ -1,3 +1,5 @@
+using MudBlazor;
+
 namespace CSEUtils.Interface;
 
 public class Settings

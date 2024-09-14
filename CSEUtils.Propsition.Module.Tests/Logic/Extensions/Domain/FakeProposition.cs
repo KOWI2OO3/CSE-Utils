@@ -2,7 +2,7 @@ using CSEUtils.Proposition.Module.Domain;
 
 namespace CSEUtils.Propsition.Module.Tests.Logic.Extensions.Domain;
 
-public record FakeProposition(HashSet<string> Variables) : IProposition, IParamatized
+public record FakeProposition(List<string> Variables) : IProposition, IParamatized
 {
     public bool IsComplete => true;
 
