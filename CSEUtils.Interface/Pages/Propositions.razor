@@ -1,5 +1,8 @@
 @using CSEUtils.Proposition.Module.Logic;
 @using CSEUtils.Proposition.Module.Logic.Extensions;
+@using CSEUtils.Interface.Logic;
+@using CSEUtils.Proposition.Module.Utils;
+@inject IJSRuntime JSRuntime
 @page "/proposition"
 
 <PageTitle>Propositions</PageTitle>
@@ -13,6 +16,8 @@
                 </MudTooltip>
             }
         </MudButtonGroup>
+
+        <MudButton OnClick="() => Export()">Export</MudButton>
 
         <MudTextField 
             @ref="@PropositionTextField" 
@@ -114,5 +119,19 @@
     private void AppendOperator(char primaryOperator) {
         _proposition += primaryOperator;
         PropositionTextField.FocusAsync();
+    }
+
+    public void Export()
+    {
+        var proposition = PropositionReader.Read(Proposition);
+        if(proposition == null) 
+        {
+            _errorMessage = "Invalid proposition";
+            return;
+        }
+
+        var content = new ExportVerilog().Export(proposition);
+        var fileName = "proposition verilog export.v";
+        DownloadHelper.DownloadFile(JSRuntime, content, fileName);
     }
 }
