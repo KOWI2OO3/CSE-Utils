@@ -30,7 +30,7 @@ public partial class LogicSimulator : ComponentBase
         Enviroment.Update();
 
         Context ??= await CanvasRef.GetContext2D();
-        Canvas ??= await CanvasRef.asHtmlCanvas();
+        Canvas = await CanvasRef.asHtmlCanvas();
         if(Context == null) return;
         await Context.ScaleCanvasToDisplay();
 
@@ -39,6 +39,7 @@ public partial class LogicSimulator : ComponentBase
         await Context.ClearRectAsync(0, 0, Resolution.Item1, Resolution.Item2);
 
         Context.DrawInputs(Canvas, Enviroment);
+        Context.DrawOutputs(Canvas, Enviroment);
 
         foreach(var gate in Enviroment.GateList)
         {
@@ -52,7 +53,7 @@ public partial class LogicSimulator : ComponentBase
 
         // Draw connections
         foreach (var connection in Enviroment.GetConnections())
-            await Context.DrawConnection(Enviroment, connection);
+            await Context.DrawConnection(Canvas, Enviroment, connection);
 
         // Draw active path
         if(PathPort != null)
@@ -119,13 +120,35 @@ public partial class LogicSimulator : ComponentBase
                             new Connection(PathPort, intersect.Value.port!, [ .. ActivePath]);  // Started from input port 
                         Enviroment.AddConnection(connection);
 
-                        // Cleanup5
+                        // Cleanup
                         PathPort = null;
                         ActivePath.Clear();
                     }
                 }
                 else
-                    ActivePath.Add(NextPositionToAdd());
+                {
+                    var outputs = Enviroment.IntersectOutputPorts((int)Canvas.Width, MousePosition);
+                    if(outputs != null)
+                    {
+                        var port = outputs.Value.Item1;
+
+                        // Only connect input to output (and vice-versa)
+                        if(port.IsInput == PathPort.IsInput) return;
+
+                        // finish path
+                        ActivePath.RemoveRange(0, 2);
+
+                        var connection = port.IsInput ? 
+                            new Connection(outputs.Value.Item1!, PathPort, [ .. ActivePath]) : // Started from output port
+                            new Connection(PathPort, outputs.Value.Item1!, [ .. ActivePath]);  // Started from input port 
+                        Enviroment.AddConnection(connection);
+
+                        // Cleanup
+                        PathPort = null;
+                        ActivePath.Clear();
+                    }else
+                        ActivePath.Add(NextPositionToAdd());
+                }
             }
             else if(MouseHolding.Count != 0) // setdown gates
             {
@@ -154,6 +177,22 @@ public partial class LogicSimulator : ComponentBase
                         position.x - MousePosition.X,
                         position.y - MousePosition.Y
                     ));
+                }
+            }
+
+            if(intersect == null)
+            {
+                var inputPort = Enviroment.IntersectInputPorts(MousePosition);
+                if(inputPort != null)
+                {
+                    PathPort = inputPort.Value.Item1;
+                    ActivePath.Add(inputPort.Value.Item2);
+                    ActivePath.Add(inputPort.Value.Item2);
+                }else
+                {
+                    var input = Enviroment.IntersectInputs(MousePosition);
+                    if(input != null)
+                        Enviroment.Inputs[input.Index] = !Enviroment.Inputs[input.Index];
                 }
             }
         }

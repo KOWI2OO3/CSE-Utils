@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using CSEUtils.App.Shared.Domain;
 using CSEUtils.LogicSimulator.Module.Logic.Extensions;
 
@@ -89,8 +90,12 @@ public class LogicEnviroment
 
     public void Update() 
     {
+        //TODO: Requires rewrite
+
         foreach (var gateId in Gates.Keys)
             UpdateGate(gateId);
+        
+        UpdateEnviroment();
     }
 
     private void CascadeUpdate(Guid gateId, ref Stack<Guid> update) 
@@ -119,13 +124,38 @@ public class LogicEnviroment
         return gate.Output;
     }
 
+    private void UpdateEnviroment() 
+    {
+        if(!Connections.TryGetValue(Id, out var connections))
+            throw new NotSupportedException("Gate was not properly initialized missing connections entry");
+        foreach(var connection in connections.Item1)
+        {
+            Outputs[connection.Input.Index] = GetState(connection.Output);
+        }
+    }
+
     private List<bool> GetGateOutputs(Guid gateId) 
     {
-        if(gateId == Id) return Outputs;
+        if(gateId == Id) return Inputs;
 
         if(!Gates.TryGetValue(gateId, out var gate))
             throw new NotSupportedException("Gate was not registered in the enviroment");
         return gate.Output;
+    }
+
+    /// <summary>
+    /// Gets the state of the port
+    /// </summary>
+    /// <param name="port">The port to get the state from, this must me either input to the circuit, or an port on an gate</param>
+    /// <returns>a boolean to signify a 0 or a 1</returns>
+    /// <exception cref="NotSupportedException"></exception>
+    private bool GetState(Port port)
+    {
+        if(port.GateId == Id) return Inputs[port.Index];
+        if(!Gates.TryGetValue(port.GateId, out var gate))
+            throw new NotSupportedException("Gate was not registered in the enviroment");
+
+        return gate.Output.Count > port.Index && gate.Output[port.Index];
     }
 
     public bool TryGetGate(Guid gateId, out LogicGate? gate) => Gates.TryGetValue(gateId, out gate);

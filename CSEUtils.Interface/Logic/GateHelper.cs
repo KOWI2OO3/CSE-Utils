@@ -1,3 +1,4 @@
+using System.Data.Common;
 using System.Drawing;
 using System.Numerics;
 using BlazeFrame.Canvas.Html;
@@ -46,16 +47,21 @@ public static class GateHelper
         }
     }
 
-    public static async Task DrawConnection(this Context2D ctx, LogicEnviroment env, Connection connection) 
+    public static async Task DrawConnection(this Context2D ctx, HtmlCanvas canvas, LogicEnviroment env, Connection connection) 
     {
         var isPowered = false;
-        if(env.TryGetGate(connection.Output.GateId, out var gate) && gate != null) {
+        if(connection.Output.GateId == env.Id) {
+            if(isPowered = env.Inputs[connection.Output.Index])
+                ctx.SetColor("red");
+        } else if(env.TryGetGate(connection.Output.GateId, out var gate) && gate != null) {
             if(isPowered = gate.Output[connection.Output.Index])
                 ctx.SetColor("red");
         }
 
-        var outputPosition = connection.Output.GetPosition(env);
-        await ctx.DrawLineAsync([outputPosition, outputPosition, .. connection.Path, connection.Input.GetPosition(env)]);
+        var width = (int)canvas.Width; 
+
+        var outputPosition = connection.Output.GetPosition(env, width);
+        await ctx.DrawLineAsync([outputPosition, outputPosition, .. connection.Path, connection.Input.GetPosition(env, width)]);
 
         if(isPowered)
             ctx.SetColor("gray");
@@ -110,14 +116,56 @@ public static class GateHelper
         return null;
     }
 
+    public static Port? IntersectInputs(this LogicEnviroment environment, (double x, double y) mousePosition)
+    {
+        for(int i = 0; i < environment.Inputs.Count; i++) 
+        {
+            var y = 50 + i * 50;
+            var x = 50;
+            var dir = new Vector2(x - (float)mousePosition.x, y - (float)mousePosition.y);
+            if (dir.LengthSquared() < PortRadius * PortRadius * 4)
+                return new(environment.Id, i, true); 
+        }
+
+        return null;
+    }
+
+    public static (Port, (int, int))? IntersectInputPorts(this LogicEnviroment environment, (double x, double y) mousePosition)
+    {
+        for(int i = 0; i < environment.Inputs.Count; i++) 
+        {
+            var y = 50 + i * 50;
+            var x = 100;
+            var dir = new Vector2(x - (float)mousePosition.x, y - (float)mousePosition.y);
+            if (dir.LengthSquared() < PortRadius * PortRadius)
+                return (new(environment.Id, i, false), (x, y)); 
+        }
+
+        return null;
+    }
+
+    public static (Port, (int, int))? IntersectOutputPorts(this LogicEnviroment environment, int width, (double x, double y) mousePosition)
+    {
+        for(int i = 0; i < environment.Outputs.Count; i++) 
+        {
+            var y = 50 + i * 50;
+            var x = width - 100;
+            var dir = new Vector2(x - (float)mousePosition.x, y - (float)mousePosition.y);
+            if (dir.LengthSquared() < PortRadius * PortRadius)
+                return (new(environment.Id, i, true), (x, y)); 
+        }
+        return null;
+    }
+
     public static (int, int) GetPosition(this (LogicGate, Port?) clipObject, LogicEnviroment env) 
     {
         var (gate, port) = clipObject;
-        return port != null ? port.GetPosition(env) : env.GatePositions[gate.Id];
+        return port != null ? port.GetPosition(env, 0) : env.GatePositions[gate.Id];
     }
 
-    public static (int, int) GetPosition(this Port port, LogicEnviroment env) 
+    public static (int, int) GetPosition(this Port port, LogicEnviroment env, int canvasWidth) 
     {
+        if(port.GateId == env.Id) return port.IsInput ? (canvasWidth - 100, 50 + port.Index * 50) : (100, 50 + port.Index * 50);
         if(!env.TryGetGate(port.GateId, out var gate) || gate == null) return (0, 0);
 
         var (x, y) = env.GatePositions[port.GateId];
@@ -134,13 +182,12 @@ public static class GateHelper
     public static int GetHeight(this LogicGate gate) => PortMargin + (2 * PortRadius + PortMargin) * Math.Max(gate.InCount, gate.OutCount);
 
     public static List<(Port, (int , int))> GetPortAndPositions(this LogicGate gate, LogicEnviroment env) =>
-        gate.GetPorts().Select(port => (port, port.GetPosition(env))).ToList();
+        gate.GetPorts().Select(port => (port, port.GetPosition(env, 0))).ToList();
 
 
     public static async void DrawInputs(this Context2D ctx, HtmlCanvas canvas, LogicEnviroment env) 
     {
-        await ctx.DrawRectangleAsync(0, 0, 100, 100000, "rgb(80, 80, 80)");
-        await ctx.DrawRectangleAsync((int)canvas.Width - 100, 0, 100, 100000, "rgb(80, 80, 80)");
+        await ctx.DrawRectangleAsync(0, 0, 75, 100000, "rgb(80, 80, 80)");
 
         for(var i = 0; i < env.Inputs.Count; i++)
             ctx.DrawInput(canvas, 50 + i * 50, env.Inputs[i]);
@@ -148,10 +195,29 @@ public static class GateHelper
 
     private static async void DrawInput(this Context2D ctx, HtmlCanvas canvas, int y, bool value) 
     {
-        await ctx.DrawCircleAsync(50, y, (int)(PortRadius * 1.5f), value ? "red" : "black");
         var lineWidth = 4;
         await ctx.DrawRectangleAsync(50, y - lineWidth, 50, lineWidth * 2, "black");
         
+        await ctx.DrawCircleAsync(50, y, (int)(PortRadius * 1.5f), value ? "red" : "black");
         await ctx.DrawCircleAsync(100, y, PortRadius, "black");
     }
+
+    public static async void DrawOutputs(this Context2D ctx, HtmlCanvas canvas, LogicEnviroment env) 
+    {
+        var x = (int)canvas.Width;
+        await ctx.DrawRectangleAsync(x - 75, 0, 100, 100000, "rgb(80, 80, 80)");
+
+        for(var i = 0; i < env.Outputs.Count; i++)
+            ctx.DrawOutput(canvas, 50 + i * 50, x, env.Outputs[i]);
+    }
+
+    
+    private static async void DrawOutput(this Context2D ctx, HtmlCanvas canvas, int y, int x, bool value) 
+    {
+        var lineWidth = 4;
+        await ctx.DrawRectangleAsync(x - 100, y - lineWidth, 50, lineWidth * 2, "black");
+        
+        await ctx.DrawCircleAsync(x - 50, y, (int)(PortRadius * 1.5f), value ? "red" : "black");
+        await ctx.DrawCircleAsync(x - 100, y, PortRadius, "black");
+    }    
 }

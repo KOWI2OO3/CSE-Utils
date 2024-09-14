@@ -1,7 +1,6 @@
-using System.Reflection.Metadata;
 using BlazeFrame.Canvas.Html;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+using System.Reflection.Metadata;
 
 namespace BlazeFrame.Components;
 
