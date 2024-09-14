@@ -17,7 +17,10 @@
             }
         </MudButtonGroup>
 
-        <MudButton OnClick="() => Export()">Export</MudButton>
+
+        <MudTooltip Text="Export proposition to verilog">
+            <MudButton OnClick="() => Export()" StartIcon="@Icons.Material.Outlined.FileDownload" style="float: right;">Export</MudButton>
+        </MudTooltip>
 
         <MudTextField 
             @ref="@PropositionTextField" 
