@@ -5,11 +5,6 @@ namespace CSEUtils.Propsition.Module.Tests.Logic;
 
 public class PropositionReaderTest
 {
-    [SetUp]
-    public void SetUp() {
-        PropositionHandler.Init();
-    }
-
     [Test]
     public void EvaluateEqualPriorityTest() {
         var proposition = PropositionReader.EvaluatePriority("a | b & c");
@@ -92,7 +87,7 @@ public class PropositionReaderTest
     public void ReadSingleCharVariableTest() {
         int pointer = 0;
         var variable = PropositionReader.ReadVariable("a", ref pointer);
-        Assert.That(variable, Is.TypeOf<PropositionalVariable>());
+        Assert.That(variable, Is.TypeOf<Variable>());
         Assert.That(variable.VariableKey, Is.EqualTo("a"));
     }
 
@@ -100,7 +95,7 @@ public class PropositionReaderTest
     public void ReadMultiCharVariableTest() {
         int pointer = 0;
         var variable = PropositionReader.ReadVariable("abc", ref pointer);
-        Assert.That(variable, Is.TypeOf<PropositionalVariable>());
+        Assert.That(variable, Is.TypeOf<Variable>());
         Assert.That(variable.VariableKey, Is.EqualTo("abc"));
     }
 

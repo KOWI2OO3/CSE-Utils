@@ -5,11 +5,6 @@ namespace CSEUtils.Propsition.Module.Test.Logic.Extensions;
 
 public class PropositionHelperTest
 {
-    [SetUp]
-    public void Setup()
-    {
-    }
-
     //GetAllPossibilities
     [Test]
     public void SimpleOneVariableTest()

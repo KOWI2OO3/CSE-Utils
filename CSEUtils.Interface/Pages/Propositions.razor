@@ -14,7 +14,14 @@
             }
         </MudButtonGroup>
 
-        <MudTextField @ref="@PropositionTextField" @bind-Value="Proposition" Label="Proposition" Variant="Variant.Text" Clearable="true" Error="@Error" Validation="@(new Func<string, IEnumerable<string>>(Validate))" />
+        <MudTextField 
+            @ref="@PropositionTextField" 
+            @bind-Value="Proposition" 
+            Label="Proposition"
+            Variant="Variant.Text"
+            Clearable="true"
+            Error="@Error"
+            Validation="@(new Func<string, IEnumerable<string>>(Validate))" />
     </MudCardContent>
 </MudCard>
 
@@ -107,5 +114,5 @@
     private void AppendOperator(char primaryOperator) {
         _proposition += primaryOperator;
         PropositionTextField.FocusAsync();
-    } 
+    }
 }
