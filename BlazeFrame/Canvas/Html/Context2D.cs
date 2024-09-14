@@ -4,7 +4,7 @@ using Microsoft.JSInterop;
 
 namespace BlazeFrame.Canvas.Html;
 
-public class Context2D(JSInvoker invoker, IJSObjectReference JSObject) : IModuleJSObject(invoker, JSObject)
+public class Context2D(JSInvoker invoker, IJSObjectReference JSObject) : ModuleJSObject(invoker, JSObject)
 {
     private string fillStyle { get; set; } = string.Empty;
     public string FillStyle { get => fillStyle; set => SetProperty(nameof(fillStyle), fillStyle = value); }

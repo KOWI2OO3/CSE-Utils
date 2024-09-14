@@ -4,7 +4,7 @@ using Microsoft.JSInterop;
 
 namespace BlazeFrame;
 
-public class IModuleJSObject(JSInvoker invoker, IJSObjectReference JSObject)
+public class ModuleJSObject(JSInvoker invoker, IJSObjectReference JSObject)
 {
     protected JSInvoker Invoker { get; } = invoker;
 
