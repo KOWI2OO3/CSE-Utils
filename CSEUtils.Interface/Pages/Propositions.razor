@@ -19,20 +19,20 @@
                 }
             </MudButtonGroup>
 
-        <div style="float: right;">
-            <MudTooltip Text="Export proposition to verilog">
-                <MudButton OnClick="() => Export()" StartIcon="@Icons.Material.Outlined.FileDownload">Export</MudButton>
-            </MudTooltip>
-        </div>
+            <div style="float: right;">
+                <MudTooltip Text="Export proposition to verilog">
+                    <MudButton OnClick="() => Export()" StartIcon="@Icons.Material.Outlined.FileDownload">Export</MudButton>
+                </MudTooltip>
+            </div>
 
-        <MudTextField 
-            @ref="@PropositionTextField" 
-            @bind-Value="Proposition" 
-            Label="Proposition"
-            Variant="Variant.Text"
-            Clearable="true"
-            Error="@Error"
-            Validation="@(new Func<string, IEnumerable<string>>(Validate))" />
+            <MudTextField 
+                @ref="@PropositionTextField" 
+                @bind-Value="Proposition" 
+                Label="Proposition"
+                Variant="Variant.Text"
+                Clearable="true"
+                Error="@Error"
+                Validation="@(new Func<string, IEnumerable<string>>(Validate))" />
         </MudCardContent>
     </MudCard>
 
