@@ -1,5 +1,4 @@
 using BlazeFrame.Canvas.Html;
-using BlazeFrame.Logic;
 using CSEUtils.App.Shared.Domain;
 using CSEUtils.Interface.Logic;
 using CSEUtils.LogicSimulator.Module.Domain;
@@ -12,6 +11,8 @@ namespace CSEUtils.Interface.Pages;
 public partial class LogicSimulator : ComponentBase
 {
     private HtmlCanvas Canvas { get; set; }
+
+    private readonly int SnappingGrid = 1;
 
     private Vector2 MousePosition { get; set; } = new();
 
@@ -31,6 +32,7 @@ public partial class LogicSimulator : ComponentBase
         Context ??= await CanvasRef.GetContext2D();
         Canvas ??= await CanvasRef.asHtmlCanvas();
         if(Context == null) return;
+        await Context.ScaleCanvasToDisplay();
 
         Context.StartBatch();
         Context.FillStyle = "white";
@@ -61,14 +63,8 @@ public partial class LogicSimulator : ComponentBase
     
     private async Task<(double, double)> MouseToCanvas(Vector2 mousePosition) 
     {
-        var rect = await CanvasRef.GetBoundingClientRect();
-
-        var scaleX = Resolution.Item1 / (double)rect.Width;
-        var scaleY = Resolution.Item2 / (double)rect.Height;
-        return (
-            (mousePosition.X - rect.Left) * scaleX,
-            (mousePosition.Y - rect.Top) * scaleY
-        );
+        Canvas ??= await CanvasRef.asHtmlCanvas();
+        return await Canvas.MouseToCanvas(mousePosition);
     }
 
     private async void MoveMouse(MouseEventArgs mouseEvent) 
@@ -132,7 +128,17 @@ public partial class LogicSimulator : ComponentBase
                     ActivePath.Add(NextPositionToAdd());
             }
             else if(MouseHolding.Count != 0) // setdown gates
+            {
+                foreach(var Id in MouseHolding.Keys)
+                {
+                    var position = Enviroment.GatePositions[Id];
+                    Enviroment.GatePositions[Id] = new(
+                        Math.Round(position.X / SnappingGrid) * SnappingGrid,
+                        Math.Round(position.Y / SnappingGrid) * SnappingGrid
+                    );
+                }
                 MouseHolding.Clear();
+            }
             else if(intersect != null)
             {
                 (int x, int y) position = intersect.Value.GetPosition(Enviroment);

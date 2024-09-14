@@ -41,4 +41,9 @@ public class HtmlCanvas(JSInvoker invoker, ElementReference element)
             await Invoker.Module!.InvokeVoidAsync("scaleCanvasToDisplay", Element);
         await InitializePropertiesAsync();
     }
+
+    public async Task<(int, int)> MouseToCanvas((int, int) mousePosition) {
+        var point = await Invoker.Module!.InvokeAsync<DOMPoint>("mouseToCanvasCoordinates", Element, mousePosition.Item1, mousePosition.Item2);
+        return ((int)point.x, (int)point.y);
+    }
 }
