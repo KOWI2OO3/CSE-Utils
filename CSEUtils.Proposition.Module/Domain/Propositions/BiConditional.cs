@@ -2,7 +2,7 @@
 namespace CSEUtils.Proposition.Module.Domain.Propositions;
 
 [Proposition(['↔', '='], Priority = 1)]
-public class BiConditional : BinaryOperator
+public class Biconditional : BinaryOperator
 {
     public override bool Solve(Dictionary<string, bool> data) => (P?.Solve(data) ?? false) == (Q?.Solve(data) ?? false);
 

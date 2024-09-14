@@ -5,8 +5,6 @@ namespace CSEUtils.Proposition.Module.Logic;
 
 public class PropositionReader
 {
-    public HashSet<char> Variables = [];
- 
     public static IProposition? Read(string proposition) {
         int pointer = 0;
         proposition = EvaluatePriority(proposition, pointer);
@@ -64,7 +62,7 @@ public class PropositionReader
         return result;
     }
 
-    public static PropositionalVariable ReadVariable(string proposition, ref int pointer)
+    public static Variable ReadVariable(string proposition, ref int pointer)
     {
         var variable = "";
         while(pointer < proposition.Length && char.IsLetter(proposition[pointer])) {
@@ -94,7 +92,6 @@ public class PropositionReader
                 continue;
             }
             if(character == ')') {
-                pointer++;
                 break;
             }
 

@@ -78,10 +78,16 @@ public class PropositionReaderTest
     }
 
     [Test]
+    public void EvaluateBracketedProposition() {
+        var proposition = PropositionReader.EvaluatePriority("(a | -b) & c");
+        Assert.That(proposition?.ToString(), Is.EqualTo("(a|(-b))&c"));
+    }
+
+    [Test]
     public void ReadSingleCharVariableTest() {
         int pointer = 0;
         var variable = PropositionReader.ReadVariable("a", ref pointer);
-        Assert.That(variable, Is.TypeOf<PropositionalVariable>());
+        Assert.That(variable, Is.TypeOf<Variable>());
         Assert.That(variable.VariableKey, Is.EqualTo("a"));
     }
 
@@ -89,7 +95,7 @@ public class PropositionReaderTest
     public void ReadMultiCharVariableTest() {
         int pointer = 0;
         var variable = PropositionReader.ReadVariable("abc", ref pointer);
-        Assert.That(variable, Is.TypeOf<PropositionalVariable>());
+        Assert.That(variable, Is.TypeOf<Variable>());
         Assert.That(variable.VariableKey, Is.EqualTo("abc"));
     }
 
@@ -130,9 +136,15 @@ public class PropositionReaderTest
     }
 
     [Test]
-    public void ReadComplextProposition() {
+    public void ReadComplexProposition() {
         var proposition = PropositionReader.Read("a | -b & c");
         Assert.That(proposition?.ToString(), Is.EqualTo("a ∨ ((¬b) ∧ c)"));
+    }
+
+    [Test]
+    public void ReadBracketedProposition() {
+        var proposition = PropositionReader.Read("(a | -b) & c");
+        Assert.That(proposition?.ToString(), Is.EqualTo("(a ∨ (¬b)) ∧ c"));
     }
 
 }
