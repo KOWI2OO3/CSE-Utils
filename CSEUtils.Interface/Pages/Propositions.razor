@@ -132,6 +132,6 @@
 
         var content = new ExportVerilog().Export(proposition);
         var fileName = "proposition verilog export.v";
-        DownloadHelper.DownloadFile(JSRuntime, content, fileName);
+        DownloadHelper.DownloadFileFromContent(JSRuntime, content, fileName);
     }
 }
