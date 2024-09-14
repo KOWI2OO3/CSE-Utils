@@ -33,14 +33,26 @@ public partial class BFCanvas : ComponentBase
 
     public Context2D? Context { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    public HtmlCanvas? Canvas { get; set; }
+
+    protected sealed override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Context ??= await CanvasRef.GetContext2D();
+        FetchDataAsync();
+        
         if(Context == null) return;
         Context.StartBatch();
 
         await OnRender.InvokeAsync(Context);
 
         await Context.EndBatch();
+    }
+
+    /// <summary>
+    /// Used to fetch data from the javascript side, this can relate to client rect data or other relevant data.
+    /// </summary>
+    private async void FetchDataAsync()
+    {
+        Canvas ??= await CanvasRef.asHtmlCanvas();
+        Context ??= await CanvasRef.GetContext2D();
     }
 }
