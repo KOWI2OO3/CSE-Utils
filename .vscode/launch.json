@@ -19,7 +19,7 @@
             "request": "launch",
             "cwd": "${workspaceFolder}/CSEUtils.Interface.Electron/bin/Release/net8.0/publish",
             "command": "npm start",
-            "preLaunchTask": "Build"
+            "preLaunchTask": "Build Project"
         }
 
     ]

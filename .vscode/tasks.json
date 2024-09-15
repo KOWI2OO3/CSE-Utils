@@ -21,22 +21,19 @@
             ],
         },
         {
-          "label": "Build",
+          "label": "Build Project",
           "dependsOrder": "parallel",
           "dependsOn": ["publish electron", "install npm"]
         },
         {
             "label": "build release",
-            "command": "npx electron-packager . CSE_Utils --platform=win32 --arch=x64 --out=dist",
+            "command": "./.vscode/build.bat",
             "type": "shell",
-            "options": {
-                "cwd": "${workspaceFolder}/CSEUtils.Interface.Electron/bin/Release/net8.0/publish"
-            },
             "problemMatcher": [
                 "$tsc"
             ],
             "dependsOrder": "sequence",
-            "dependsOn": ["Build"],
+            "dependsOn": ["Build Project"],
             "presentation": {
                 "echo": false,
                 "reveal": "always",
