@@ -18,6 +18,7 @@
         </MudButtonGroup>
 
         <div style="float: right;">
+            <MudButton OnClick="() => Simplify()" StartIcon="@Icons.Material.Outlined.Compress">Simplify</MudButton>
             <MudTooltip Text="Export proposition to verilog">
                 <MudButton OnClick="() => Export()" StartIcon="@Icons.Material.Outlined.FileDownload">Export</MudButton>
             </MudTooltip>
@@ -137,5 +138,16 @@
         var content = new ExportVerilog().Export(proposition);
         var fileName = "proposition verilog export.v";
         DownloadHelper.DownloadFileFromContent(JSRuntime, content, fileName);
+    }
+
+    public void Simplify()
+    {
+        var proposition = PropositionReader.Read(Proposition);
+        if(proposition == null) 
+        {
+            _errorMessage = "Invalid proposition";
+            return;
+        }
+        _proposition = proposition.Simplify();
     }
 }
