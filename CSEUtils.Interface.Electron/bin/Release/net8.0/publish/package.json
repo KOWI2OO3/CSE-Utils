@@ -1,0 +1,17 @@
+{
+  "name": "cse_utils",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^32.1.0"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

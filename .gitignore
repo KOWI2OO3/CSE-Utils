@@ -1,2 +1,12 @@
-/*/bin
+/*/bin/*
 /*/obj
+
+!CSEUtils.Interface.Electron/bin/Release/
+
+CSEUtils.Interface.Electron/bin/Release/net8.0/*
+!CSEUtils.Interface.Electron/bin/Release/net8.0/publish
+
+CSEUtils.Interface.Electron/bin/Release/net8.0/publish/wwwroot/
+!CSEUtils.Interface.Electron/bin/Release/net8.0/publish/
+
+CSEUtils.Interface.Electron/bin/Release/net8.0/publish/node_modules/

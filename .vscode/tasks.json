@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "publish electron",
+            "command": "dotnet publish",
+            "type": "shell",
+            "problemMatcher": [
+                "$tsc"
+            ],
+        },
+        {
+            "label": "install npm",
+            "command": "npm install",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/CSEUtils.Interface.Electron/bin/Release/net8.0/publish"
+            },
+            "problemMatcher": [
+                "$tsc"
+            ],
+        },
+        {
+          "label": "Build",
+          "dependsOrder": "parallel",
+          "dependsOn": ["publish electron", "install npm"]
+        }
+    ]
+}
