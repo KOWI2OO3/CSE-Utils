@@ -31,7 +31,11 @@ public class PropositionReader
             else if(char.IsLetter(currentChar))
                 cache = ReadVariable(proposition, ref pointer);
             else if(currentChar.IsOperator())
+            {
                 cache = ReadProposition(proposition, ref pointer, ref cache);
+                if(proposition[pointer-1] == ')') 
+                    break;
+            }
             else 
                 throw new FormatException($"Unknown character {currentChar}");
         }
