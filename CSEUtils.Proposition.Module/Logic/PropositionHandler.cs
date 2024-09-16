@@ -48,6 +48,7 @@ public static class PropositionHandler
         .Select(
             type => (PropositionHelper.PrimaryOperator(type), type.Name)
         )
+        .OrderByDescending(tuple => tuple.Item1.GetOperatorPriority())
         .ToList();
 
 }
