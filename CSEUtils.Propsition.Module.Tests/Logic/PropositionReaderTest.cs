@@ -147,4 +147,20 @@ public class PropositionReaderTest
         Assert.That(proposition?.ToString(), Is.EqualTo("(a ∨ (¬b)) ∧ c"));
     }
 
+    [Test]
+    public void ReadBracketedNotPropositionEvaluation()
+    {
+        var input = "-((a ↑ b) ↑ (a ↑ c)) ↑ (b ↑ c)";
+        var proposition = PropositionReader.EvaluatePriority(input);
+        Assert.That(proposition?.ToString(), Is.EqualTo("(-((a↑b)↑(a↑c)))↑(b↑c)"));
+    }
+
+    [Test]
+    public void ReadBracketedNotPropositionTest()
+    {
+        var input = "-((a ↑ b) ↑ (a ↑ c)) ↑ (b ↑ c)";
+        var proposition = PropositionReader.Read(input);
+        Assert.That(proposition?.ToString(), Is.EqualTo("(¬((a ↑ b) ↑ (a ↑ c))) ↑ (b ↑ c)"));
+    }
+
 }
