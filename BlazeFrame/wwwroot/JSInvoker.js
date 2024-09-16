@@ -59,3 +59,32 @@ function scaleToDisplay(canvas, ctx) {
     canvas.style.width = `${rect.width}px`;
     canvas.style.height = `${rect.height}px`;
 }
+
+/**
+ * Converts the x y position of the mouse to the canvas coordinates
+ * @param {canvas} canvas 
+ * @param {number} x 
+ * @param {number} y 
+ * @returns {DOMPoint} The canvas coordinates
+ */
+export function mouseToCanvasCoordinates(canvas, x, y) {
+    const ctx = canvas.getContext('2d');
+    const matrix = ctx.getTransform();
+    const inverseMatrix = matrix.inverse();
+
+    let pos = getMousePos(canvas, x, y);
+    
+    const point = new DOMPoint(pos.x, pos.y);
+    return point.matrixTransform(inverseMatrix);
+}
+
+function  getMousePos(canvas, x, y) {
+    var rect = canvas.getBoundingClientRect(), // abs. size of element
+      scaleX = canvas.width / rect.width,    // relationship bitmap vs. element for x
+      scaleY = canvas.height / rect.height;  // relationship bitmap vs. element for y
+  
+    return {
+      x: (x - rect.left) * scaleX,   // scale mouse coordinates after they have
+      y: (y - rect.top) * scaleY     // been adjusted to be relative to element
+    }
+  }

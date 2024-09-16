@@ -62,7 +62,7 @@ public class PropositionReader
         return result;
     }
 
-    public static PropositionalVariable ReadVariable(string proposition, ref int pointer)
+    public static Variable ReadVariable(string proposition, ref int pointer)
     {
         var variable = "";
         while(pointer < proposition.Length && char.IsLetter(proposition[pointer])) {

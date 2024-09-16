@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using CSEUtils.Proposition.Module.Domain;
@@ -9,7 +11,7 @@ public static class PropositionHelper
 {
     public static List<string> GetVariables(this IProposition proposition) =>
         proposition is IParamatized paramatized ? [.. paramatized.Variables] : 
-            (proposition is PropositionalVariable variable ? new List<string>([variable.VariableKey]) : []);
+            (proposition is Variable variable ? new List<string>([variable.VariableKey]) : []);
 
     public static List<Dictionary<string, bool>> GetAllPossibilities(this IProposition proposition) {
         var variables = proposition.GetVariables().ToList();
@@ -38,5 +40,4 @@ public static class PropositionHelper
             .Select(option => (option, proposition.Solve(option)))
             .ToList();
     }
-
 }

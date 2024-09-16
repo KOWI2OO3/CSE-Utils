@@ -1,5 +1,8 @@
 @using CSEUtils.Proposition.Module.Logic;
 @using CSEUtils.Proposition.Module.Logic.Extensions;
+@using CSEUtils.Interface.Logic;
+@using CSEUtils.Proposition.Module.Utils;
+@inject IJSRuntime JSRuntime
 @page "/proposition"
 
 <PageTitle>Propositions</PageTitle>
@@ -16,7 +19,20 @@
                 }
             </MudButtonGroup>
 
-            <MudTextField @ref="@PropositionTextField" @bind-Value="Proposition" Label="Proposition" Variant="Variant.Text" Clearable="true" Error="@Error" Validation="@(new Func<string, IEnumerable<string>>(Validate))" />
+            <div style="float: right;">
+                <MudTooltip Text="Export proposition to verilog">
+                    <MudButton OnClick="() => Export()" StartIcon="@Icons.Material.Outlined.FileDownload">Export</MudButton>
+                </MudTooltip>
+            </div>
+
+            <MudTextField 
+                @ref="@PropositionTextField" 
+                @bind-Value="Proposition" 
+                Label="Proposition"
+                Variant="Variant.Text"
+                Clearable="true"
+                Error="@Error"
+                Validation="@(new Func<string, IEnumerable<string>>(Validate))" />
         </MudCardContent>
     </MudCard>
 
@@ -110,5 +126,19 @@
     private void AppendOperator(char primaryOperator) {
         _proposition += primaryOperator;
         PropositionTextField.FocusAsync();
-    } 
+    }
+
+    public void Export()
+    {
+        var proposition = PropositionReader.Read(Proposition);
+        if(proposition == null) 
+        {
+            _errorMessage = "Invalid proposition";
+            return;
+        }
+
+        var content = new ExportVerilog().Export(proposition);
+        var fileName = "proposition verilog export.v";
+        DownloadHelper.DownloadFileFromContent(JSRuntime, content, fileName);
+    }
 }

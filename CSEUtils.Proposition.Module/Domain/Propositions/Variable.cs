@@ -1,7 +1,7 @@
 
 namespace CSEUtils.Proposition.Module.Domain.Propositions;
 
-public record PropositionalVariable(string VariableKey) : IProposition
+public record Variable(string VariableKey) : IProposition
 {
     public bool IsComplete => true;
 

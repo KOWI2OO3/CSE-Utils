@@ -20,7 +20,7 @@ public static class PropositionHandler
     /// <param name="operands"> The operands to add to the proposition </param>
     /// <returns> The proposition </returns>
     public static IProposition? GetProposition(char operatorSymbol, params IProposition[] operands) {
-        if(operators.TryGetValue(operatorSymbol, out var type) && Activator.CreateInstance(type, operands) is IProposition prop) {
+        if(operators.TryGetValue(operatorSymbol, out var type) && Activator.CreateInstance(type) is IProposition prop) {
             if(prop is IParamatized paramatized) {
                 foreach (var operand in operands) 
                     paramatized.AddParameter(operand);

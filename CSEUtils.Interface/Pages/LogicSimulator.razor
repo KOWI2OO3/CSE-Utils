@@ -24,13 +24,15 @@
             <MudToolBar>
                 <MudIconButton OnClick="() => IsGateMenuOpen = !IsGateMenuOpen" Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Class="mr-5" />
                 <MudIconButton OnClick="AddInput" Icon="@Icons.Material.Outlined.Add" />
-                <MudIconButton Icon="@Icons.Material.Outlined.Edit" />
-                <MudIconButton Icon="@Icons.Material.Outlined.Remove" Color="Color.Inherit" />
+                <MudIconButton OnClick="RemoveInput" Icon="@Icons.Material.Outlined.Remove" Color="Color.Inherit" />
                 <MudSpacer />
                 <MudIconButton Icon="@Icons.Material.Outlined.Notifications" />
                 <MudIconButton Icon="@Icons.Material.Outlined.PushPin" />
                 <MudIconButton Icon="@Icons.Material.Outlined.PeopleAlt" />
                 <MudIconButton Icon="@Icons.Material.Outlined.Settings" Color="Color.Inherit" />
+
+                <MudIconButton OnClick="AddOutput" Icon="@Icons.Material.Outlined.Add" />
+                <MudIconButton OnClick="RemoveOutput" Icon="@Icons.Material.Outlined.Remove" Color="Color.Inherit" />
                 <MudIconButton OnClick="() => IsFullScreen = !IsFullScreen" 
                     Icon="@(IsFullScreen ? Icons.Material.Filled.FullscreenExit : Icons.Material.Filled.Fullscreen)" Color="Color.Inherit" />
             </MudToolBar>
@@ -71,8 +73,7 @@
     private Context2D? Context { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
-        //if(Enviroment.GateList.Count != 0)
-            await Render();
+        await Render();
     }
 
     private void PendingAddGate(LogicGate gate) => AddGateAndHold(gate);
@@ -94,6 +95,43 @@
     private void AddInput()
     {
         Enviroment.Inputs.Add(false);
+    }
+
+    private void RemoveInput()
+    {
+        if(Enviroment.Inputs.Count == 0)
+            return;
+
+        var brokenConnections = Enviroment.GetConnections()
+            .Where(x => x.Output.GateId == Enviroment.Id && x.Output.Index == Enviroment.Inputs.Count - 1);
+
+        foreach (var connection in brokenConnections)
+        {
+            Enviroment.RemoveConnection(connection);
+        }
+
+        Enviroment.Inputs.RemoveAt(Enviroment.Inputs.Count - 1);
+    }
+
+    private void AddOutput()
+    {
+        Enviroment.Outputs.Add(false);
+    }
+
+    private void RemoveOutput()
+    {
+        if(Enviroment.Outputs.Count == 0)
+            return;
+
+        var brokenConnections = Enviroment.GetConnections()
+            .Where(x => x.Input.GateId == Enviroment.Id && x.Input.Index == Enviroment.Outputs.Count - 1);
+
+        foreach (var connection in brokenConnections)
+        {
+            Enviroment.RemoveConnection(connection);
+        }
+
+        Enviroment.Outputs.RemoveAt(Enviroment.Outputs.Count - 1);
     }
 }
 <style scoped>

@@ -1,5 +1,4 @@
 using BlazeFrame.Canvas.Html;
-using BlazeFrame.Logic;
 using CSEUtils.App.Shared.Domain;
 using CSEUtils.Interface.Logic;
 using CSEUtils.LogicSimulator.Module.Domain;
@@ -12,6 +11,8 @@ namespace CSEUtils.Interface.Pages;
 public partial class LogicSimulator : ComponentBase
 {
     private HtmlCanvas Canvas { get; set; }
+
+    private readonly int SnappingGrid = 1;
 
     private Vector2 MousePosition { get; set; } = new();
 
@@ -29,14 +30,16 @@ public partial class LogicSimulator : ComponentBase
         Enviroment.Update();
 
         Context ??= await CanvasRef.GetContext2D();
-        Canvas ??= await CanvasRef.asHtmlCanvas();
+        Canvas = await CanvasRef.asHtmlCanvas();
         if(Context == null) return;
+        await Context.ScaleCanvasToDisplay();
 
         Context.StartBatch();
         Context.FillStyle = "white";
         await Context.ClearRectAsync(0, 0, Resolution.Item1, Resolution.Item2);
 
         Context.DrawInputs(Canvas, Enviroment);
+        Context.DrawOutputs(Canvas, Enviroment);
 
         foreach(var gate in Enviroment.GateList)
         {
@@ -50,7 +53,7 @@ public partial class LogicSimulator : ComponentBase
 
         // Draw connections
         foreach (var connection in Enviroment.GetConnections())
-            await Context.DrawConnection(Enviroment, connection);
+            await Context.DrawConnection(Canvas, Enviroment, connection);
 
         // Draw active path
         if(PathPort != null)
@@ -61,14 +64,8 @@ public partial class LogicSimulator : ComponentBase
     
     private async Task<(double, double)> MouseToCanvas(Vector2 mousePosition) 
     {
-        var rect = await CanvasRef.GetBoundingClientRect();
-
-        var scaleX = Resolution.Item1 / (double)rect.Width;
-        var scaleY = Resolution.Item2 / (double)rect.Height;
-        return (
-            (mousePosition.X - rect.Left) * scaleX,
-            (mousePosition.Y - rect.Top) * scaleY
-        );
+        Canvas ??= await CanvasRef.asHtmlCanvas();
+        return await Canvas.MouseToCanvas(mousePosition);
     }
 
     private async void MoveMouse(MouseEventArgs mouseEvent) 
@@ -123,16 +120,48 @@ public partial class LogicSimulator : ComponentBase
                             new Connection(PathPort, intersect.Value.port!, [ .. ActivePath]);  // Started from input port 
                         Enviroment.AddConnection(connection);
 
-                        // Cleanup5
+                        // Cleanup
                         PathPort = null;
                         ActivePath.Clear();
                     }
                 }
                 else
-                    ActivePath.Add(NextPositionToAdd());
+                {
+                    var outputs = Enviroment.IntersectOutputPorts((int)Canvas.Width, MousePosition);
+                    if(outputs != null)
+                    {
+                        var port = outputs.Value.Item1;
+
+                        // Only connect input to output (and vice-versa)
+                        if(port.IsInput == PathPort.IsInput) return;
+
+                        // finish path
+                        ActivePath.RemoveRange(0, 2);
+
+                        var connection = port.IsInput ? 
+                            new Connection(outputs.Value.Item1!, PathPort, [ .. ActivePath]) : // Started from output port
+                            new Connection(PathPort, outputs.Value.Item1!, [ .. ActivePath]);  // Started from input port 
+                        Enviroment.AddConnection(connection);
+
+                        // Cleanup
+                        PathPort = null;
+                        ActivePath.Clear();
+                    }else
+                        ActivePath.Add(NextPositionToAdd());
+                }
             }
             else if(MouseHolding.Count != 0) // setdown gates
+            {
+                foreach(var Id in MouseHolding.Keys)
+                {
+                    var position = Enviroment.GatePositions[Id];
+                    Enviroment.GatePositions[Id] = new(
+                        Math.Round(position.X / SnappingGrid) * SnappingGrid,
+                        Math.Round(position.Y / SnappingGrid) * SnappingGrid
+                    );
+                }
                 MouseHolding.Clear();
+            }
             else if(intersect != null)
             {
                 (int x, int y) position = intersect.Value.GetPosition(Enviroment);
@@ -148,6 +177,22 @@ public partial class LogicSimulator : ComponentBase
                         position.x - MousePosition.X,
                         position.y - MousePosition.Y
                     ));
+                }
+            }
+
+            if(intersect == null)
+            {
+                var inputPort = Enviroment.IntersectInputPorts(MousePosition);
+                if(inputPort != null)
+                {
+                    PathPort = inputPort.Value.Item1;
+                    ActivePath.Add(inputPort.Value.Item2);
+                    ActivePath.Add(inputPort.Value.Item2);
+                }else
+                {
+                    var input = Enviroment.IntersectInputs(MousePosition);
+                    if(input != null)
+                        Enviroment.Inputs[input.Index] = !Enviroment.Inputs[input.Index];
                 }
             }
         }
