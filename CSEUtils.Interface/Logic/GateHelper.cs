@@ -197,7 +197,7 @@ public static class GateHelper
     {
         var lineWidth = 4;
         await ctx.DrawRectangleAsync(50, y - lineWidth, 50, lineWidth * 2, "black");
-        
+
         await ctx.DrawCircleAsync(50, y, (int)(PortRadius * 1.5f), value ? "red" : "black");
         await ctx.DrawCircleAsync(100, y, PortRadius, "black");
     }

@@ -3,7 +3,7 @@ using CSEUtils.Proposition.Module.Logic.Extensions;
 
 namespace CSEUtils.Proposition.Module.Domain.Propositions;
 
-[Proposition(['¬', '-', '!'], Priority = 3)]
+[Proposition(['¬', '-', '!', '~'], Priority = 3)]
 public class Not : IProposition, IParamatized
 {
     public IProposition? P { get; private set; }
