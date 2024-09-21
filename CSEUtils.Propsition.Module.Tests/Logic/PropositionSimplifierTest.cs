@@ -27,6 +27,18 @@ public class PropositionSimplifierTest
     }
 
     [Test]
+    public void GetTrueTermsSimpleWithConstraintsTest()
+    {
+        var proposition = PropositionHandler.GetProposition('|', new Variable("a"), new Variable("b"));
+        var constraint = PropositionReader.Read("a");
+        var (order, minTerms) = proposition!.GetTrueTerms([constraint]);
+        Assert.That(order, Is.EqualTo(new string[] { "a", "b" }));
+        Assert.That(minTerms, Has.Count.EqualTo(2));
+        Assert.That(minTerms, Does.Contain("10"));
+        Assert.That(minTerms, Does.Contain("11"));
+    }
+
+    [Test]
     public void CompareBinariesTest()
     {
         var s1 = "0000";
@@ -137,6 +149,61 @@ public class PropositionSimplifierTest
         var proposition = PropositionReader.Read("(a → b) ∨ ¬b");
         var result = proposition!.Simplify();
         Assert.That(result, Is.EqualTo("T"));
+    }
+
+    [Test]
+    public void GetVariantsTest()
+    {
+        var result = PropositionSimplifier.GetVariants("-000");
+        Assert.That(result, Does.Contain("0000"));
+        Assert.That(result, Does.Contain("1000"));
+    }
+
+    [Test]
+    public void GetVariantsTwoUnknownsTest()
+    {
+        var result = PropositionSimplifier.GetVariants("-00-");
+        Assert.That(result, Does.Contain("0000"));
+        Assert.That(result, Does.Contain("1000"));
+        Assert.That(result, Does.Contain("0001"));
+        Assert.That(result, Does.Contain("1001"));
+    }
+    
+    [Test]
+    public void GetVariantsThreeUnknownsTest()
+    {
+        var result = PropositionSimplifier.GetVariants("-0--");
+        Assert.That(result, Does.Contain("0000"));
+        Assert.That(result, Does.Contain("1000"));
+        Assert.That(result, Does.Contain("0001"));
+        Assert.That(result, Does.Contain("1001"));
+        
+        Assert.That(result, Does.Contain("0010"));
+        Assert.That(result, Does.Contain("1010"));
+        Assert.That(result, Does.Contain("0011"));
+        Assert.That(result, Does.Contain("1011"));
+    }
+
+    [Test]
+    public void GetPrimeImplicantTermsTest()
+    {
+        var result = PropositionSimplifier.GetPrimeImplicantTerms(["-000"]);
+        Assert.That(result, Does.ContainKey("-000"));
+        Assert.That(result["-000"], Does.Contain(0));
+        Assert.That(result["-000"], Does.Contain(8));
+    }
+
+    [Test]
+    public void GetPrimeImplicantTermsMultipleImplicantsTest()
+    {
+        var result = PropositionSimplifier.GetPrimeImplicantTerms(["-000", "000-"]);
+        Assert.That(result, Does.ContainKey("-000"));
+        Assert.That(result["-000"], Does.Contain(0));
+        Assert.That(result["-000"], Does.Contain(8));
+        
+        Assert.That(result, Does.ContainKey("000-"));
+        Assert.That(result["000-"], Does.Contain(0));
+        Assert.That(result["000-"], Does.Contain(1));
     }
 
 }
