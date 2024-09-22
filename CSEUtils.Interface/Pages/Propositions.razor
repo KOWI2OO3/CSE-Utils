@@ -2,6 +2,8 @@
 @using CSEUtils.Proposition.Module.Logic.Extensions;
 @using CSEUtils.Interface.Logic;
 @using CSEUtils.Proposition.Module.Utils;
+@using CSEUtils.Interface.Dialogs;
+@inject IDialogService DialogService
 @inject IJSRuntime JSRuntime
 @page "/proposition"
 
@@ -9,19 +11,27 @@
 
 <MudCard style="margin-top: 10px;">
     <MudCardContent>
-        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
-            @foreach(var entry in PropositionHandler.OperatorsInfo) {
-                <MudTooltip Text="@(entry.Item2.ToUpper())">
-                        <MudButton OnClick="() => AppendOperator((entry.Item1))">@(entry.Item1)</MudButton>
-                </MudTooltip>
-            }
-        </MudButtonGroup>
+        <div class="d-flex align-center justify-content-between">
+            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                @foreach(var entry in PropositionHandler.OperatorsInfo) {
+                    <MudTooltip Text="@(entry.Item2.ToUpper())">
+                            <MudButton OnClick="() => AppendOperator((entry.Item1))">@(entry.Item1)</MudButton>
+                    </MudTooltip>
+                }
+            </MudButtonGroup>
 
-        <div style="float: right;">
-            <MudButton OnClick="() => Simplify()" StartIcon="@Icons.Material.Outlined.Compress">Simplify</MudButton>
-            <MudTooltip Text="Export proposition to verilog">
-                <MudButton OnClick="() => Export()" StartIcon="@Icons.Material.Outlined.FileDownload">Export</MudButton>
-            </MudTooltip>
+            <div class="d-flex align-center justify-content-end">
+                <MudButton OnClick="() => Simplify()" StartIcon="@Icons.Material.Outlined.Compress">Simplify</MudButton>
+                <MudTooltip Text="Export proposition to verilog">
+                    <MudButton OnClick="() => Export()" StartIcon="@Icons.Material.Outlined.FileDownload">Export</MudButton>
+                </MudTooltip>
+
+                <MudMenu Icon="@Icons.Material.Rounded.MoreVert" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Variant="Variant.Text" DisableElevation="true">
+                    <div class="d-flex align-center">
+                        <MudButton OnClick="() => OpenAdvancedSimplifyDialogAsync()" StartIcon="@Icons.Material.Outlined.Compress">Advanced Simplify</MudButton>
+                    </div>
+                </MudMenu>
+            </div>
         </div>
 
         <MudTextField 
@@ -148,6 +158,33 @@
             _errorMessage = "Invalid proposition";
             return;
         }
-        _proposition = proposition.Simplify();
+        Proposition = proposition.Simplify();
+    }
+
+    public void SimplifyAdvanced(string[] constraints)
+    {
+        var proposition = PropositionReader.Read(Proposition);
+        if(proposition == null) 
+        {
+            _errorMessage = "Invalid proposition";
+            return;
+        }
+        var constraintsList = constraints
+            .Select(x => PropositionReader.Read(x))
+            .Where(x => x != null)
+            .Select(x => x!)
+            .ToList();
+        Proposition = proposition.Simplify(constraintsList);
+        PropositionTextField.SetText(Proposition);
+    }
+
+    private Task OpenAdvancedSimplifyDialogAsync()
+    {
+        var parameters = new DialogParameters()
+        {
+            { "OnSubmit", new Action<string[]>(x => base.InvokeAsync(() => SimplifyAdvanced(x))) }
+        };
+        var options = new DialogOptions { CloseOnEscapeKey = true, FullWidth = true };
+        return DialogService.ShowAsync<AdvancedSimplifyDialog>("Simple Dialog", parameters, options);
     }
 }

@@ -1,0 +1,85 @@
+@using CSEUtils.Proposition.Module.Logic;
+@using CSEUtils.Proposition.Module.Logic.Extensions;
+@using CSEUtils.Proposition.Module.Utils;
+@using System.Data;
+
+<MudDialog>
+    <TitleContent>
+        <h5>Advanced Simplify</h5>
+    </TitleContent>
+    <DialogContent>
+        <div>
+            <h6>Constraints</h6>
+            <ul>
+                @for (var  i = 0; i < (Constraints.Count); i++)
+                {
+                    var localVariable = i;
+                    <li>
+                        <div style="display: flex; justify-content: space-between; width: 100%;">
+                            <MudTextField
+                                @bind-Value="(Constraints[localVariable])"
+                                Label=""
+                                Variant="Variant.Text"
+                                Clearable="true"
+                                Validation="@(new Func<string, IEnumerable<string>>((c) => Validate(c, localVariable)))"
+                            />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="() => RemoveConstraint(localVariable)" />
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Simplify</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public Action<string[]>? OnSubmit { get; set; }
+
+    public List<string> Constraints { get; set; } = [""];
+
+    private void AddConstraint() {
+        Constraints.Add("");
+    }
+
+    private void RemoveConstraint(int index) {
+        if(index == Constraints.Count - 1) 
+        {
+            Constraints[index] = string.Empty;
+            return;
+        }
+        Constraints.RemoveAt(index);
+    }
+
+    private void Submit() {
+        MudDialog?.Close(DialogResult.Ok(true));
+        OnSubmit?.Invoke(Constraints.Where(x => !string.IsNullOrEmpty(x)).ToArray());
+    }
+
+    private IEnumerable<string> Validate(string ch, int i) {
+        if(!string.IsNullOrWhiteSpace(ch) && i == Constraints.Count - 1) 
+            AddConstraint();
+
+        if(string.IsNullOrWhiteSpace(ch) && i == Constraints.Count - 1) 
+            yield return string.Empty;
+
+        string result = string.Empty;
+        try {
+            var prop = PropositionReader.Read(ch);
+            if(prop == null || !prop.IsComplete) 
+                result = string.IsNullOrWhiteSpace(ch) && i == Constraints.Count - 1 ? string.Empty : "Invalid constraint";
+        }catch(Exception ex) {
+            result = ex.Message;
+        }
+
+        yield return result;
+    }
+
+    private void Cancel() => MudDialog?.Cancel();
+}
