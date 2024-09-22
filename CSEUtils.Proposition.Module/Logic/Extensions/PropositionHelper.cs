@@ -10,8 +10,8 @@ namespace CSEUtils.Proposition.Module.Logic.Extensions;
 public static class PropositionHelper
 {
     public static List<string> GetVariables(this IProposition proposition) =>
-        proposition is IParamatized paramatized ? [.. paramatized.Variables] : 
-            (proposition is Variable variable ? new List<string>([variable.VariableKey]) : []);
+        (proposition is IParamatized paramatized ? [.. paramatized.Variables] : 
+            (proposition is Variable variable ? [variable.VariableKey] : []));
 
     public static List<Dictionary<string, bool>> GetAllPossibilities(this IProposition proposition) {
         var variables = proposition.GetVariables().ToList();
