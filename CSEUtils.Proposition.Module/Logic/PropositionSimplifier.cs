@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Globalization;
-using System.Security.Cryptography.X509Certificates;
-using System.Xml.Linq;
 using CSEUtils.Proposition.Module.Domain;
 using CSEUtils.Proposition.Module.Logic.Extensions;
 
@@ -19,12 +15,41 @@ public static class PropositionSimplifier
     {
         string[] order = [.. proposition.GetVariables()];
         var trueValues = proposition.GetTruthTable()
-            .Where(x => constraints?.All(constraint => constraint.Solve(x.Item1)) ?? true)
-            .Where(x => x.Item2)
+            .Where(x => (constraints?.Any(constraint => !constraint.Solve(x.Item1)) ?? false) || x.Item2)
             .Select(x => GetBinaryTerm(order, x.Item1))
             .ToList();
         return (order, trueValues);
     } 
+    
+    /// <summary>
+    /// Gets a list of all of the invalid inputs which result in 'don't care' based on the constraints
+    /// </summary>
+    /// <param name="proposition">The original proposition to check the inputs for</param>
+    /// <param name="order">The order of the inputs</param>
+    /// <param name="constraints">The constraints to test for</param>
+    /// <returns>a list of all of the inputs being valid in integer format in the order given</returns>
+    public static HashSet<int> GetAllInvalids(this IProposition proposition, string[] order, List<IProposition>? constraints = null)
+    {
+        if(constraints == null)
+            return [];
+
+        return proposition.GetAllPossibilities()
+            .Where(possibility => constraints.Any(constraints => !constraints.Solve(possibility)))
+            .Select(possibility => Convert.ToInt32(GetBinaryTerm(order, possibility), 2))
+            .ToHashSet();
+    }
+
+    /// <summary>
+    /// Validates the constraints based on their input variables and the input variables of the proposition
+    /// </summary>
+    /// <param name="proposition">The original proposition</param>
+    /// <param name="constraint">The constraint</param>
+    /// <returns>True if the constraint is valid, false otherwise</returns>
+    public static bool ValidateConstraint(this IProposition proposition, IProposition constraint)
+    {
+        var variables = proposition.GetVariables();
+        return constraint.GetVariables().All(variables.Contains);
+    }
 
     /// <summary>
     /// Get the binary term for a given possibility
@@ -42,13 +67,30 @@ public static class PropositionSimplifier
         return result;
     }
 
-    public static string Simplify(this IProposition proposition, List<IProposition>? constraints = null) => Simplify(proposition.GetTrueTerms());
+    /// <summary>
+    /// Simplifies the proposition as far as possible using the quine mccluskey
+    /// </summary>
+    /// <param name="proposition">The proposition to simplify</param>
+    /// <param name="constraints">The constraints of the proposition inputs</param>
+    /// <returns>A simplified proposition string</returns>
+    public static string Simplify(this IProposition proposition, List<IProposition>? constraints = null) 
+    {
+        constraints = constraints?.Where(proposition.ValidateConstraint).ToList();
+        var trueterms = proposition.GetTrueTerms(constraints);
+        return Simplify(trueterms, proposition.GetAllInvalids(trueterms.Item1, constraints));
+    } 
 
-    public static string Simplify(this (string[] order, List<string> minterms) terms)
+    /// <summary>
+    /// Simplifies the proposition as far as possible using the quine mccluskey
+    /// </summary>
+    /// <param name="terms">The a tuple of the order of the variables and a list terms for which the proposition is true or 'dont care'</param>
+    /// <param name="invalid">The invalid prime implicants used to simplify with constraints</param>
+    /// <returns>A simplified proposition string</returns>
+    public static string Simplify(this (string[] order, List<string> minterms) terms, HashSet<int>? invalid = null)
     {
         var groupedMinterms = GetGroupedMinterms(terms.minterms);
         var simplified = GetPrimeImplicants(groupedMinterms);
-        return ConstructProposition(terms.order, SolvePiTable(simplified));
+        return ConstructProposition(terms.order, SolvePiTable(simplified, invalid));
     }
 
     public static string ConstructProposition(string[] order, List<string> primeImplicants)
@@ -92,12 +134,19 @@ public static class PropositionSimplifier
         return primeImplicants;
     }
     
+    /// <summary>
+    /// Perform the first step of the quine mccluskey algorithm on a given list of minterms
+    /// Get the prime implicants for a given list of minterms using the quine mccluskey algorithm
+    /// </summary>
+    /// <param name="minterms">The minterms which include all terms for which the proposition is true or 'dont care'</param>
+    /// <returns>A list of the compacted implicants (eg. "-00-")</returns>
     public static List<string> GetPrimeImplicants(Dictionary<int, List<string>> minterms) 
     {
         var hasChanged = false;
         do
         {
-            hasChanged = GetNextLayer(minterms, out minterms);
+            hasChanged = GetNextLayer(minterms, out var result);
+            minterms = result;
         }while(hasChanged);
         return minterms.SelectMany(x => x.Value).Distinct().ToList();
     }
@@ -114,12 +163,13 @@ public static class PropositionSimplifier
         var hasChanged = false;
 
         result = [];
-        foreach (var key in minterms.Keys)
+        foreach (var key in minterms.Keys.Order())
         {
             var current = minterms[key];
             if(!minterms.TryGetValue(key + 1, out var next))
             {
-                var list = minterms[key].Where(x => !handled.Contains(x)).ToList();
+                // Handling the last layer
+                var list = current.Where(x => !handled.Contains(x)).ToList();
                 if(list.Count > 0)
                     result[key] = list;
                 continue;
@@ -143,7 +193,7 @@ public static class PropositionSimplifier
                     var resultingTerm = new string(array);
 
                     if(!result.ContainsKey(oneCount))
-                        result[oneCount] = [];
+                        result.TryAdd(oneCount, []);
                     result[oneCount].Add(resultingTerm!);
                 }
 
@@ -151,13 +201,13 @@ public static class PropositionSimplifier
                 if(!handled.Contains(minterm))
                 {
                     if(!result.ContainsKey(key))
-                        result[key] = [];
+                        result.TryAdd(key, []);
                     result[key].Add(minterm);
                 }
             }
         }
 
-        result = result.Where(x => x.Value.Count > 0).ToDictionary(x => x.Key, y => y.Value);
+        result = result.Where(x => x.Value.Count > 0).ToDictionary(x => x.Key, y => y.Value.Distinct().ToList());
 
         return hasChanged;
     }
@@ -187,11 +237,24 @@ public static class PropositionSimplifier
         return result;
     }
 
-    public static List<string> SolvePiTable(List<string> implicants)
+    /// <summary>
+    /// Solves the PI-Table of the quine mccluskey algorithm
+    /// </summary>
+    /// <param name="implicants">The simplified implicants given to the table</param>
+    /// <param name="invalid">The invalid prime implicants used to simplify with constraints</param>
+    /// <returns></returns>
+    public static List<string> SolvePiTable(List<string> implicants, HashSet<int>? invalids = null)
     {
         var terms = GetPrimeImplicantTerms(implicants);
+
+        // Remove all invalids from the terms
+        if(invalids != null)
+            terms = terms.Where(entry => entry.Value.Any(x => !invalids.Contains(x))).ToDictionary();
+        
+        // Different data structure making it easier to retrieve the implicants for a given term
         var inverted = InvertDictionary(terms);
 
+        // Include all essential implicants in the result
         var single = inverted.Where(entry => entry.Value.Count == 1);
         var covered = single.Select(entry => entry.Key).ToHashSet();
         var essentialImplicants = single.Select(entry => entry.Value.First()).ToList() ?? [];
@@ -201,6 +264,7 @@ public static class PropositionSimplifier
         var missing = inverted.Where(entry => !handled.Contains(entry.Key)).ToDictionary(x => x.Key, y => y.Value);
         var coveredMissing = new HashSet<int>();
 
+        // Scoring secundary implicants based on how many missing terms they cover
         var secundaryImplicants = new List<string>();
         foreach(var (implicant, expressions) in missing)
         {
@@ -212,10 +276,12 @@ public static class PropositionSimplifier
             _ = terms[best.expression].All(coveredMissing.Add);
         }
 
+        // Order the secundary implicants based on how many missing terms they cover
         var orderedSecundaries = secundaryImplicants.Select(expression => (expression, terms[expression]))
                 .Select(x => (x.expression, x.Item2.Count(imp => missing.ContainsKey(imp))))
                 .OrderByDescending(x => x.Item2);
 
+        // Include the best secundary implicants in the result
         var result = new List<string>();
         coveredMissing.Clear();
         foreach (var entry in orderedSecundaries)
@@ -232,9 +298,15 @@ public static class PropositionSimplifier
                 break;
         }
 
+        // Combine the essential and secundary implicants
         return result.Union(essentialImplicants).Distinct().ToList();
     }
 
+    /// <summary>
+    /// A simple helper method to invert a dictionary with a collection as the value
+    /// </summary>
+    /// <param name="data">A dictionary with a collection as value</param>
+    /// <returns>The inverted dictionary</returns>
     public static Dictionary<int, HashSet<string>> InvertDictionary(Dictionary<string, HashSet<int>> data)
     {
         var result = new Dictionary<int, HashSet<string>>();

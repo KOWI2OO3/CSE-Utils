@@ -33,7 +33,9 @@ public class PropositionSimplifierTest
         var constraint = PropositionReader.Read("a");
         var (order, minTerms) = proposition!.GetTrueTerms([constraint]);
         Assert.That(order, Is.EqualTo(new string[] { "a", "b" }));
-        Assert.That(minTerms, Has.Count.EqualTo(2));
+        Assert.That(minTerms, Has.Count.EqualTo(4));
+        Assert.That(minTerms, Does.Contain("00"));
+        Assert.That(minTerms, Does.Contain("01"));
         Assert.That(minTerms, Does.Contain("10"));
         Assert.That(minTerms, Does.Contain("11"));
     }
