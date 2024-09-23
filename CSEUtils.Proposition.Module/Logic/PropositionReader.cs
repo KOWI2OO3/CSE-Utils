@@ -28,6 +28,8 @@ public class PropositionReader
                 break;
             }
 
+            else if(currentChar == '0' || currentChar == '1')
+                cache = new Primitive(proposition[pointer++] == '1');
             else if(char.IsLetter(currentChar))
                 cache = ReadVariable(proposition, ref pointer);
             else if(currentChar.IsOperator())
