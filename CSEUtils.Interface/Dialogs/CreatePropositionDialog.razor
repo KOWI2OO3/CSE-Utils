@@ -27,15 +27,15 @@
                     case CreationTypes.MaxTerms:
                         <div style="display: flex; align-items: center;">
                             <span>F(</span>
-                            <MudTextField @bind-Value="Order" Variant="Variant.Text" Placeholder="eg. A,B,C,D" 
-                                        Margin="Margin.Dense" Style="flex-grow: 1; width: auto; min-width: 50px;" />
+                            <MudTextField @bind-Value="Order" Variant="Variant.Text" Placeholder="eg. A,B,C,D"
+                                        Margin="Margin.Dense" Style="flex-grow: 1; width: auto; min-width: 50px;" Error="@(!string.IsNullOrEmpty(Error))"/>
                             <span>) =</span>
                         </div>
 
                         <div style="display: flex; align-items: center;">
                             <span>@(CollectionChar)(</span>
                                 <MudTextField @bind-Value="Terms" Variant="Variant.Text" Placeholder="eg. 0, 11, 5, 3" 
-                                            Margin="Margin.Dense" Style="flex-grow: 1; width: auto; min-width: 50px;" />
+                                            Margin="Margin.Dense" Style="flex-grow: 1; width: auto; min-width: 50px;"/>
                             <span>)</span>
                         </div>
                         break;
@@ -50,6 +50,7 @@
                     //    break;
                 }
                 <MudCheckBox @bind-Value="SimplifyOnCreation" Color="Color.Primary" Label="Simplify on creation"/>
+                <p style="color: @(ErrorColor)">@Error</p>
             </div>
         </div>
     </DialogContent>
@@ -58,6 +59,7 @@
         <MudButton Color="Color.Primary" OnClick="Submit">Create</MudButton>
     </DialogActions>
 </MudDialog>
+
 @code {
     [CascadingParameter]
     private MudDialogInstance? MudDialog { get; set; }
@@ -70,9 +72,14 @@
     public string Order { get; set; } = string.Empty;
     public string Terms { get; set; } = string.Empty;
 
+    public string Error { get; set; } = string.Empty;
+
     public bool SimplifyOnCreation { get; set; }
 
     private void Submit() {
+        if (!string.IsNullOrEmpty(Validate()))
+            return;
+
         MudDialog?.Close(DialogResult.Ok(true));
         var result = CreationType switch 
         {
@@ -98,6 +105,17 @@
             _ => throw new NotImplementedException()
         };
 
+    private string Validate() 
+    {
+        var max = Terms.Split(',').Select(x => int.Parse(x.Trim())).Max();
+        var maxOrder = max.ToString("B").Length;
+        if (Order.Split(',').Length != maxOrder)
+            Error = $"The amount of variables must match the length of the biggest term in binary (in this case {maxOrder})";
+        return Error;
+    }
+
+    private string ErrorColor => Settings.Default.IsDarkMode ?  LocalInstance.Theme.PaletteDark.Error.Value : LocalInstance.Theme.PaletteLight.Error.Value;
+    
     public enum CreationTypes
     {
         MinTerms,

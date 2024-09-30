@@ -1,5 +1,5 @@
 ﻿@inherits LayoutComponentBase
-<MudThemeProvider @bind-IsDarkMode="Settings.Default.IsDarkMode" />
+<MudThemeProvider @bind-IsDarkMode="Settings.Default.IsDarkMode" Theme="@(LocalInstance.Theme)" />
 <MudPopoverProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
