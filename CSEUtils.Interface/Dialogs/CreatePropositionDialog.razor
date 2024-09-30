@@ -1,0 +1,131 @@
+@using CSEUtils.Proposition.Module.Logic;
+@using CSEUtils.Proposition.Module.Logic.Extensions;
+@using CSEUtils.Proposition.Module.Utils;
+@using System.Data;
+
+<MudDialog>
+    <TitleContent>
+        <h5>Create Proposition</h5>
+    </TitleContent>
+    <DialogContent>
+        <div>
+            <MudSelect @bind-Value="CreationType"
+                       Variant="Variant.Text"
+                       Label="Type"
+                       Dense="true"
+            >
+                @foreach (var state in Enum.GetValues(typeof(CreationTypes)).Cast<CreationTypes>())
+                {
+                    <MudSelectItem Value="state">@state</MudSelectItem>
+                }
+            </MudSelect>
+            
+            <div class="type-content">
+                @switch (CreationType)
+                {
+                    case CreationTypes.MinTerms:
+                    case CreationTypes.MaxTerms:
+                        <div style="display: flex; align-items: center;">
+                            <span>F(</span>
+                            <MudTextField @bind-Value="Order" Variant="Variant.Text" Placeholder="eg. A,B,C,D"
+                                        Margin="Margin.Dense" Style="flex-grow: 1; width: auto; min-width: 50px;" Error="@(!string.IsNullOrEmpty(Error))"/>
+                            <span>) =</span>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                            <span>@(CollectionChar)(</span>
+                                <MudTextField @bind-Value="Terms" Variant="Variant.Text" Placeholder="eg. 0, 11, 5, 3" 
+                                            Margin="Margin.Dense" Style="flex-grow: 1; width: auto; min-width: 50px;"/>
+                            <span>)</span>
+                        </div>
+                        break;
+                    //case CreationTypes.TruthTable:
+                    //    <MudTextField @bind-Value="TruthTable"
+                    //                  Label="Truth Table"
+                    //                  Variant="Variant.Text"
+                    //                  Dense="true"
+                    //                  Error="@Error"
+                    //                  Validation="@(new Func<string, IEnumerable<string>>(Validate))"
+                    //    />
+                    //    break;
+                }
+                <MudCheckBox @bind-Value="SimplifyOnCreation" Color="Color.Primary" Label="Simplify on creation"/>
+                <p style="color: @(ErrorColor)">@Error</p>
+            </div>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Create</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public Action<string>? OnSubmit { get; set; }
+
+    public CreationTypes CreationType { get; set; } = CreationTypes.MinTerms;
+
+    public string Order { get; set; } = string.Empty;
+    public string Terms { get; set; } = string.Empty;
+
+    public string Error { get; set; } = string.Empty;
+
+    public bool SimplifyOnCreation { get; set; }
+
+    private void Submit() {
+        if (!string.IsNullOrEmpty(Validate()))
+            return;
+
+        MudDialog?.Close(DialogResult.Ok(true));
+        var result = CreationType switch 
+        {
+            CreationTypes.MinTerms => PropositionConstructor.CreateStringFromMinTerms(Terms, Order),
+            CreationTypes.MaxTerms => PropositionConstructor.CreateStringFromMaxTerms(Terms, Order),
+            //CreationTypes.TruthTable => PropositionConstructor.CreateStringFromTruthTable(TruthTable),
+            _ => throw new NotImplementedException()
+        };
+
+        if(SimplifyOnCreation)
+            result = PropositionReader.Read(result)?.Simplify() ?? result;
+
+        OnSubmit?.Invoke(result);
+    }
+
+    private void Cancel() => MudDialog?.Cancel();
+
+    private char CollectionChar => 
+        CreationType switch
+        {
+            CreationTypes.MinTerms => '∑',
+            CreationTypes.MaxTerms => '∏',
+            _ => throw new NotImplementedException()
+        };
+
+    private string Validate() 
+    {
+        var max = Terms.Split(',').Select(x => int.Parse(x.Trim())).Max();
+        var maxOrder = max.ToString("B").Length;
+        if (Order.Split(',').Length != maxOrder)
+            Error = $"The amount of variables must match the length of the biggest term in binary (in this case {maxOrder})";
+        return Error;
+    }
+
+    private string ErrorColor => Settings.Default.IsDarkMode ?  LocalInstance.Theme.PaletteDark.Error.Value : LocalInstance.Theme.PaletteLight.Error.Value;
+    
+    public enum CreationTypes
+    {
+        MinTerms,
+        MaxTerms,
+        //TruthTable
+    } 
+}
+
+<style>
+    .type-content {
+        margin-top: 10px;
+    }
+</style>

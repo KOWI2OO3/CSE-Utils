@@ -31,6 +31,9 @@
                     <div class="d-flex align-center">
                         <MudButton OnClick="() => OpenAdvancedSimplifyDialogAsync()" StartIcon="@Icons.Material.Outlined.Compress">Advanced Simplify</MudButton>
                     </div>
+                    <div class="d-flex align-center">
+                        <MudButton OnClick="() => OpenCreatePropositionDialogAsync()" StartIcon="@Icons.Material.Filled.Create">Create Proposition</MudButton>
+                    </div>
                 </MudMenu>
             </div>
         </div>
@@ -179,6 +182,12 @@
         PropositionTextField.SetText(Proposition);
     }
 
+    public void SetProposition(string x)
+    {
+        Proposition = x;
+        PropositionTextField.SetText(Proposition);
+    }
+
     private Task OpenAdvancedSimplifyDialogAsync()
     {
         var parameters = new DialogParameters()
@@ -187,5 +196,15 @@
         };
         var options = new DialogOptions { CloseOnEscapeKey = true, FullWidth = true };
         return DialogService.ShowAsync<AdvancedSimplifyDialog>("Simple Dialog", parameters, options);
+    }
+
+    private Task OpenCreatePropositionDialogAsync() 
+    {
+        var parameters = new DialogParameters()
+        {
+            { "OnSubmit", new Action<string>(x => base.InvokeAsync(() => SetProposition(x))) }
+        };
+        var options = new DialogOptions { CloseOnEscapeKey = true, FullWidth = true };
+        return DialogService.ShowAsync<CreatePropositionDialog>("Create Proposition Dialog", parameters, options);
     }
 }
